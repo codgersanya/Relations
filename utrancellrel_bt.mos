@@ -1,0 +1,148 @@
+#This script creates utrancellrelations between existing eutrancellfdds and externalutrancells -according to BT's naming convention,which is:
+#UtranCellRelation=[MCC][MNC]-[RncId]-[cId]
+#e.g: UtranCellRelation=23430-4007-13609
+#Existing utranfreqrelations and existing externalutrancells is a prerequisite of this script.
+#All parameter settings need to be checked against the parameter master, cr or lld.
+#The script operates with default values.
+
+lt all
+unset all
+!rm -r $tempdir/*.*
+$return = 0
+
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+!echo '** Error: there are no eutrancellfdds! **************' >> $tempdir/temp_error1.txt
+!echo '** Please define them before running this script! ***' >> $tempdir/temp_error1.txt
+!echo '** Script execution is stopped **********************' >> $tempdir/temp_error1.txt
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+
+!echo '*************************************************************' >> $tempdir/temp_error2.txt
+!echo '** Warning: there are no externalutrancells! ****************' >> $tempdir/temp_error2.txt
+!echo '** no relation has been created to externalutrancells! ******' >> $tempdir/temp_error2.txt
+!echo '*************************************************************' >> $tempdir/temp_error2.txt
+
+!echo '*************************************************************' >> $tempdir/temp_error3.txt
+!echo '** Error: not all the utranfrequencyrelations are defined ***' >> $tempdir/temp_error3.txt
+!echo '** Please define all  utranfrequencyrelations first! ********' >> $tempdir/temp_error3.txt
+!echo '** Script execution is stopped ******************************' >> $tempdir/temp_error3.txt
+!echo '*************************************************************' >> $tempdir/temp_error3.txt
+
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+!echo '** Success: the following relations have been added ***' >> $tempdir/temp_success.txt
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+!echo '** No change: all utrancellrelations are added already. ********' >> $tempdir/temp_nonew.txt
+!echo '** The script has finished with the check! *********************' >> $tempdir/temp_nonew.txt
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+
+mr enbf
+ma enbf ^enodebfunction=
+for $mo in enbf
+	$enbfldn = ldn($mo)
+done
+
+mr utranw
+ma utranw ^utranetwork=
+for $mo in utranw
+	$utranwldn = ldn($mo)
+done
+
+pr ^eutrancellfdd=
+if $nr_of_mos = 0
+	!cat  $tempdir/temp_error1.txt
+	return
+fi
+
+mr cellgroup
+ma cellgroup ^eutrancellfdd=
+	for $mo in cellgroup
+		$i = $i + 1
+		$ldneutrancellfdd[$i] = ldn($mo)
+		$rdneutrancellfdd[$i] = rdn($mo)
+		$moideutrancellfdd[$i] = $rdneutrancellfdd[$i] -s .*=
+	done
+
+pr ^externalutrancellfdd=
+if $nr_of_mos = 0
+	!cat $tempdir/temp_error2.txt 
+	return
+fi
+
+#$utranwldn = ENodeBFunction=1,UtraNetwork=1
+mr utrancellgroup
+ma utrancellgroup ^externalutrancellfdd=
+	for $mo in utrancellgroup
+		$m = $m + 1
+		$rdnexternalutrancellfdd[$m] = rdn($mo)
+		#ExternalUtranCellFDD=23430-111-21755
+		$moidexternalutrancellfdd[$m] = $rdnexternalutrancellfdd[$m] -s ExternalUtranCellFDD=
+		#23430-111-21755
+		$ldnexternalutrancellfdd[$m] = ldn($mo)
+		#ENodeBFunction=1,UtraNetwork=1,UtranFrequency=10761,ExternalUtranCellFDD=23430-111-21755
+		$externalutrancellfdd[$m] = $rdnexternalutrancellfdd[$m] -s .*=
+		#23430-111-21755
+		$externalutrancellfddref[$m] = $ldnexternalutrancellfdd[$m] -s $enbfldn,
+		#UtraNetwork=1,UtranFrequency=10761,ExternalUtranCellFDD=23430-111-21755
+		print $utranwldn,utranfrequency
+		$utranfrequency[$m] = $ldnexternalutrancellfdd[$m] -s $utranwldn,UtranFrequency=
+		#10761,ExternalUtranCellFDD=23430-111-21755
+		$utranfrequency[$m] = $utranfrequency[$m] -s ,.*
+		#10761
+	done
+
+func result
+	pr $ldneutrancellfdd[$p],utranfreqrelation=$utranfrequency[$n],utrancellrelation=$moidexternalutrancellfdd[$n]
+	if nr_of_mos != 0
+	!echo $ldneutrancellfdd[$p],utranfreqrelation=$utranfrequency[$n],utrancellrelation=$moidexternalutrancellfdd[$n] >> $tempdir/temp_result.txt
+	fi
+endfunc
+
+func relcreate
+	get $ldneutrancellfdd[$p],utranfreqrelation=$utranfrequency[$n],utrancellrelation= externalutrancellfddref $moidexternalutrancellfdd[$n]
+	if $nr_of_mos = 0
+		crn $ldneutrancellfdd[$p],utranfreqrelation=$utranfrequency[$n],utrancellrelation=$moidexternalutrancellfdd[$n]
+		externalutrancellfddref $externalutrancellfddref[$n]
+		end
+		result
+	fi
+endfunc
+
+func add_externalutrancell_to_cell
+	for $n = 1 to $m
+		print $ldneutrancellfdd[$p],utranfreqrelation=$utranfrequency[$n]
+		pr $ldneutrancellfdd[$p],utranfreqrelation=$utranfrequency[$n]
+		if $nr_of_mos = 0
+			!cat $tempdir/temp_error3.txt 
+			$return = 1
+			break
+		else
+		relcreate
+		fi
+	done
+endfunc
+
+func nonew
+	$linecontent = testfile($tempdir/temp_result.txt)
+	if $nr_of_lines  = 0
+		!cat $tempdir/temp_nonew.txt
+	else
+		!cat $tempdir/temp_success.txt
+		!cat $tempdir/temp_result.txt
+	fi
+endfunc
+
+for $p = 1 to $i
+	add_externalutrancell_to_cell
+	if $return = 1
+		break
+	fi
+done
+
+if $return = 1
+	return
+fi 
+
+nonew

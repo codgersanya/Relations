@@ -1,0 +1,113 @@
+#This script adds Lrat.UtranFreqRelations -based on existing EUtranFrequencies.
+#EUtranFrequencies must be defined before running this script!
+#The recent parameter master doesn't include any UtranFreqRelation-relevant settings -except qRxLevMin (-111dBm).
+#cellReselectionPriority is mandatory parameter and it is set to 3 on existing nodes.
+#Hence rest of the priority-settings will be set to the last known values:
+#UtranFreqRelation.altCsfbTargetPrio 5
+#UtranFreqRelation.altCsfbTargetPrioEc 5
+#UtranFreqRelation.connectedModeMobilityPrio -1
+#UtranFreqRelation.csFallbackPrio 7
+#UtranFreqRelation.csFallbackPrioEC 7
+#UtranFreqRelation.voicePrio -1
+
+lt all
+unset all
+$return = 0
+!rm -r $tempdir/*.*
+
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+!echo '** ERROR: There are no EUtranCellFDDs!***************' >> $tempdir/temp_error1.txt
+!echo '** Please define them before running this script! ***' >> $tempdir/temp_error1.txt
+!echo '** Script execution is stopped **********************' >> $tempdir/temp_error1.txt
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+ 
+!echo '*********************************************************' >> $tempdir/temp_error2.txt
+!echo '** ERROR: There are no UtranFrequencies! ****************' >> $tempdir/temp_error2.txt
+!echo '** Please define all UtranFrequency(s)  first! **********' >> $tempdir/temp_error2.txt
+!echo '*********************************************************' >> $tempdir/temp_error2.txt
+
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+!echo '** SUCCESS: The following UtranFreqRelations have been added: ***' >> $tempdir/temp_success.txt
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+!echo '** NO CHANGE: All UtranFreqRelations are added already. ********' >> $tempdir/temp_nonew.txt
+!echo '** The script has finished with the check! *********************' >> $tempdir/temp_nonew.txt
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+
+pr ^EUtranCellFDD=
+if $nr_of_mos = 0
+	!cat  $tempdir/temp_error1.txt
+	l+mmo $tempdir/dummy
+	$return = 1
+	return
+fi
+
+mr cellgroup
+ma cellgroup ^EUtranCellFDD=
+	for $mo in cellgroup
+		$i = $i + 1
+		$ldnEUtranCellFDD[$i] = ldn($mo)
+		$moidEUtranCellFDD[$i] = $ldnEUtranCellFDD[$i] -s .*=
+	done
+
+pr ^UtranFrequency=
+if $nr_of_mos = 0
+	!cat  $tempdir/temp_error2.txt
+	return
+fi
+
+mr UtranFrequencygroup
+ma UtranFrequencygroup ^UtranFrequency=
+	for $mo in UtranFrequencygroup
+		$j = $j + 1
+		$ldnUtranFrequency[$j] = ldn($mo)
+		$moidUtranFrequency[$j] = $ldnUtranFrequency[$j] -s .*=
+		$moidUtranFrequency[$j] = $moidUtranFrequency[$j] -s -.*
+done
+
+func result
+	pr $ldnEUtranCellFDD[$m],UtranFreqRelation=$moidUtranFrequency[$k]
+	if nr_of_mos != 0
+	!echo $ldnEUtranCellFDD[$m],UtranFreqRelation=$moidUtranFrequency[$k] >> $tempdir/result.txt
+	fi
+endfunc
+
+func add_all_UtranFrequency_to_cell
+	for $k = 1 to $j
+		get $ldnEUtranCellFDD[$m],UtranFreqRelation= UtranFrequencyRef $moidUtranFrequency[$k]
+		if $nr_of_mos = 0
+			crn $ldnEUtranCellFDD[$m],UtranFreqRelation=$moidUtranFrequency[$k]
+			UtranFrequencyRef $ldnUtranFrequency[$k]
+			cellReselectionPriority 3
+			end
+			result
+		fi
+	done
+endfunc
+
+func nonew
+	$linecontent = testfile($tempdir/result.txt)
+	if $nr_of_lines  = 0
+		!cat $tempdir/temp_nonew.txt
+	else
+		!cat $tempdir/temp_success.txt
+		!cat $tempdir/result.txt
+	fi
+endfunc
+
+for $m = 1 to $i
+	add_all_UtranFrequency_to_cell
+done
+
+#BT-specific settings starts here
+set ^UtranFreqRelation= qRxLevMin -111
+set ^UtranFreqRelation= altCsfbTargetPrio 5
+set ^UtranFreqRelation= altCsfbTargetPrioEc 5
+set ^UtranFreqRelation= connectedModeMobilityPrio -1
+set ^UtranFreqRelation= csFallbackPrio 7
+set ^UtranFreqRelation= csFallbackPrioEC 7
+set ^UtranFreqRelation= voicePrio -1
+#BT-specific settings ends here
+
+nonew
