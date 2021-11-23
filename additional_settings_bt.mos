@@ -1,0 +1,5 @@
+lt all
+confb+
+set . isRemoveAllowed false 
+set AnrFunction=1  cellRelHoAttRateThreshold 0
+set . removeNrelTime 1000
