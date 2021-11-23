@@ -77,7 +77,7 @@ func intraresult
 endfunc
 
 func extresult
-	pr $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$n]
+	pr $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation=$moidexternalEUtranCellFDD[$n]
 	if $nr_of_mos = 1
 		!echo $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$n] >> $tempdir/result.txt
 	fi
@@ -205,7 +205,7 @@ ma externalEUtranCellFDDgroup ^ExternalEUtranCellFDD=
 	done
 
 func extrelcreate
-	get $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation neighborCellRef $ldnexternalEUtranCellFDD[$n]
+	get $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation neighborCellRef $ldnexternalEUtranCellFDD[$n]$
 	if $nr_of_mos = 0
 		crn $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation=$moidexternalEUtranCellFDD[$n]
 		neighborCellRef $ldnexternalEUtranCellFDD[$n]
