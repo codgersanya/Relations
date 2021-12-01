@@ -78,6 +78,7 @@ func result
 	pr $ldnEUtranCellFDD[$m],GUtranFreqRelation=$moidGUtranFrequency[$k]
 	if nr_of_mos != 0
 	!echo $ldnEUtranCellFDD[$m],GUtranFreqRelation=$moidGUtranFrequency[$k] >> $tempdir/result.txt
+	fi
 endfunc
 
 func add_all_GUtranFrequency_to_cell
