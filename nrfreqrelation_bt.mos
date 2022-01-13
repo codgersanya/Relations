@@ -95,15 +95,29 @@ func result
 	fi
 endfunc
 
+func relcreate
+	get $rdnnrcell[$m] threshServingLowQ > $threshServingLowQ[$m]
+	if $threshServingLowQ[$m] >= 0
+		crn $ldnnrcell[$m],NRFreqRelation=$moidnrfrequency[$k]
+		nRFrequencyRef $ldnnrfrequency[$k]
+		threshXLowQ 0
+		threshXHighQ 0
+		end
+	else
+		crn $ldnnrcell[$m],NRFreqRelation=$moidnrfrequency[$k]
+		nRFrequencyRef $ldnnrfrequency[$k]
+		end
+	fi
+	result
+endfunc
+
+
 func add_nrfrequency_to_cell
 	for $k = 1 to $j
 		print $rdnnrcell[$m],NRFreqRelation= nRFrequencyRef $rdnNRNetwork,$rdnnrfrequency[$k]
 		get $rdnnrcell[$m],NRFreqRelation= nRFrequencyRef $rdnNRNetwork,$rdnnrfrequency[$k]
 		if $nr_of_mos = 0
-			crn $ldnnrcell[$m],NRFreqRelation=$moidnrfrequency[$k]
-			nRFrequencyRef $ldnnrfrequency[$k]
-			end
-			result
+			relcreate
 		fi
 	done
 endfunc

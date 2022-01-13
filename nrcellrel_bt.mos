@@ -172,8 +172,7 @@ endfunc
 
 func IntNRFreqRelationcheck
 		get $moidnrcell[$k] nRFrequencyRef > $nRFrequencyRef[$k]
-		pv $nRFrequencyRef[$k]
-		if $nr_of_vars = 0
+		if $nRFrequencyRef[$k] ~ ^$
 			$nonRFrequencyRef = 1
 		fi
 		get $rdnnrcell[$j],NRFreqRelation= nRFrequencyRef $nRFrequencyRef[$k]
