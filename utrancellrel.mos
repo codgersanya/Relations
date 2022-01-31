@@ -1,4 +1,4 @@
-#This script creates utrancellrelations between existing eutrancellfdds and externalutrancells -according to BT's naming convention,which is:
+#This script creates utrancellrelations between existing eutrancellfdds and externalutrancells, as follows:
 #UtranCellRelation=[MCC][MNC]-[RncId]-[cId]
 #e.g: UtranCellRelation=23430-4007-13609
 #Existing utranfreqrelations and existing externalutrancells is a prerequisite of this script.
