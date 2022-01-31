@@ -2,6 +2,7 @@
 #It creates UeMCNrFreqRelProfile and sets references for NRFreqRelation -if you uncomment that section at the bottom of the script
 #It adds McpcPSCellProfile and set references for NRFreqRelation -if you uncomment that section at the bottom of the script.
 
+
 lt all
 unset all
 !rm -r $tempdir/*.*
