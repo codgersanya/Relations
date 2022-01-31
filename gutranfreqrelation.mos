@@ -1,4 +1,4 @@
-#This script includes BT-specific settings
+#This script includes specific settings
 #This script adds Lrat.GUtranFreqRelations -based on existing GUtranSyncSignalFrequencies to EUtranCell's 18C1, 21C1, 26C1, 26C2, 26C3
 #GUtranFreqRelation.cellReselectionPriority is set to -1 for all instances.
 #ExternalGNodeBFunction, TermPointToGNB must be defined before running this script!
@@ -100,6 +100,6 @@ done
 
 nonew
 
-#BT-specific settings starts here
+#specific settings starts here
 set GUtranFreqRelation= allowedPlmnList mcc=234,mnc=30,mncLength=2
-#BT-specific settings ends here
+#specific settings ends here
