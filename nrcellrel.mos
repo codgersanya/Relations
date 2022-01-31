@@ -1,6 +1,6 @@
 #This script creates NRCellRelations between existing NRCellCUs and ExternalNRCellCUs according to BT's naming convention, which is:
 #NRCellRelation=plmnid[mcc]plmnid[mnc]-gnbid-celllocalid of the target NRCell.
-#Existing NRFreqRelations is a prerequisite of this script. See: NRFreqRelation_BT.mos
+#Existing NRFreqRelations is a prerequisite of this script. See: NRFreqRelation.mos
 #NRCellCU.nRFrequencyRef and ExternalNRCellCU.nRFrequencyRef is mandatory for this purpose.
 #nRFrequencyRef is autocreated by the autocreation of NRCellCU and ExternalNRCellCU.
 #If NRCellCUs were manually created, there's chance that nRFrequencyRef is missing.
