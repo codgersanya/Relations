@@ -5,6 +5,7 @@
 #ExternalGUtranCells and GUtranSyncSignalFrequencies are also prerequisite.
 #These latter 2 are autocreated -after TermPointToGNB and NrCellDU is up.
 
+
 lt all
 unset all
 $return = 0
