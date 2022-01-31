@@ -1,6 +1,5 @@
-#This script defines GUtranCellRelations according to BT's naming format requirement, where
-#GUtranCellRelation=ExternalGUtranCell and
-#ExternalGUtranCell is the (target) and autocreated upon X2 becomes operational as #[MCC][MNC]-[gNBid]-[NR celllocalid], where
+#This script defines GUtranCellRelations, where
+#GUtranCellRelation=ExternalGUtranCell and ExternalGUtranCell is the (target) and autocreated upon X2 becomes operational as #[MCC][MNC]-[gNBid]-[NR celllocalid], where
 #gNBid is completed to 15-digits.
 #e.g. GUtranCellRelation=23430-000000000069021-0
 #EUtranCellFDDs, GUtranFreqRelations and ExternalGUtranCells must be configured before running this script!
