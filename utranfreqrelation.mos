@@ -1,7 +1,7 @@
 #This script adds Lrat.UtranFreqRelations -based on existing EUtranFrequencies.
 #EUtranFrequencies must be defined before running this script!
 #The recent parameter master doesn't include any UtranFreqRelation-relevant settings -except qRxLevMin (-111dBm).
-#cellReselectionPriority is mandatory parameter and it is set to 3 on existing nodes.
+#cellReselectionPriority is mandatory parameter and it is set to 3 via this script.
 #Hence rest of the priority-settings will be set to the last known values:
 #UtranFreqRelation.altCsfbTargetPrio 5
 #UtranFreqRelation.altCsfbTargetPrioEc 5
