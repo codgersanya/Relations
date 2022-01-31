@@ -1,6 +1,6 @@
 #This script adds NRFreqRelations to the node -based on existing NRFrequencys.
-#It creates UeMCNrFreqRelProfile and sets references for NRFreqRelation -based on the latest CR.
-#It adds McpcPSCellProfile and sets references for NRFreqRelation -based on the latest CR.
+#It creates UeMCNrFreqRelProfile and sets references for NRFreqRelation -if you uncomment that section at the bottom of the script
+#It adds McpcPSCellProfile and set references for NRFreqRelation -if you uncomment that section at the bottom of the script.
 
 lt all
 unset all
@@ -127,8 +127,8 @@ for $m = 1 to $i
 done
 
 
-#BT-specific settings starts here
-#
+#UeMCNrFreqRelProfile and McpcPSCellProfile
+
 #mr GNBCUCPFunctiongroup
 #ma GNBCUCPFunctiongroup ^GNBCUCPFunction=
 #for $mo in GNBCUCPFunctiongroup
@@ -166,7 +166,7 @@ done
 #set NRCellCU mcpcPSCellProfileRef Mcpc=1,McpcPSCellProfile=1
 #set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base lowHighFreqPrioClassification 7
 #set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpSearchTimeRestriction 5000
-#
-#BT-specific settings ends here
+
+#UeMCNrFreqRelProfile and McpcPSCellProfile ends
 
 nonew
