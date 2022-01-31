@@ -12,7 +12,6 @@
 #Rest of the settings need to be checked against the parameter master, CR or LLD.
 #The script operates with default values.
 
-
 lt all
 unset all
 !rm -r $tempdir/*.*
