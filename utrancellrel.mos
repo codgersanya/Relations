@@ -2,7 +2,6 @@
 #UtranCellRelation=[MCC][MNC]-[RncId]-[cId]
 #e.g: UtranCellRelation=23430-4007-13609
 #Existing utranfreqrelations and existing externalutrancells is a prerequisite of this script.
-#All parameter settings need to be checked against the parameter master, cr or lld.
 #The script operates with default values.
 
 lt all
