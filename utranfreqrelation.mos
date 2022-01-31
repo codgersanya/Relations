@@ -100,7 +100,7 @@ for $m = 1 to $i
 	add_all_UtranFrequency_to_cell
 done
 
-#BT-specific settings starts here
+#specific settings starts here
 set ^UtranFreqRelation= qRxLevMin -111
 set ^UtranFreqRelation= altCsfbTargetPrio 5
 set ^UtranFreqRelation= altCsfbTargetPrioEc 5
@@ -108,6 +108,6 @@ set ^UtranFreqRelation= connectedModeMobilityPrio -1
 set ^UtranFreqRelation= csFallbackPrio 7
 set ^UtranFreqRelation= csFallbackPrioEC 7
 set ^UtranFreqRelation= voicePrio -1
-#BT-specific settings ends here
+#specific settings ends here
 
 nonew
