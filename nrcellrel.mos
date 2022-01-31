@@ -1,4 +1,4 @@
-#This script creates NRCellRelations between existing NRCellCUs and ExternalNRCellCUs according to BT's naming convention, which is:
+#This script creates NRCellRelations between existing NRCellCUs and ExternalNRCellCUs, as follows:
 #NRCellRelation=plmnid[mcc]plmnid[mnc]-gnbid-celllocalid of the target NRCell.
 #Existing NRFreqRelations is a prerequisite of this script. See: NRFreqRelation.mos
 #NRCellCU.nRFrequencyRef and ExternalNRCellCU.nRFrequencyRef is mandatory for this purpose.
@@ -12,7 +12,6 @@
 #The script sets EUtranCellRelation.coverageIndicator to 1 if the source and the target has identical names
 #e.g 69012N(A)n281-69012N(A)n282 obviously belong to sector-A both and the coverageIndicator will be set to 2 (OVERLAP) automatically,
 #while 9322692610-auto1130692608's coverageIndicator will be set to 0 (NONE) and need to be changed manually -if needed.
-#Settings need to be checked against the parameter master, CR or LLD -as the script operates with default values.
 
 lt all
 unset all
