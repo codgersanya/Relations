@@ -1,4 +1,4 @@
-#This script includes BT-specific settings
+#This script includes specific settings
 #This script adds Lrat.EUtranFreqRelations -based on existing EUtranFrequencies.
 #EUtranFrequencies must be defined before running this script!
 #There is no check regarding the parameter-set section, so runx (failsafe run) is recommended!
@@ -92,7 +92,7 @@ for $m = 1 to $i
 	add_all_EUtranFrequency_to_cell
 done
 
-#BT-specific settings starts here
+#specific settings starts here
 
 set EUtranFreqRelation=6225 cellReselectionPriority 4 
 set EUtranFreqRelation=3029 cellReselectionPriority 7 
@@ -235,6 +235,6 @@ set EUtranCellFDD=......28,EUtranFreqRelation=3029 voiceprio  6
 
 set EUtranFreqRelation eutranFreqToQciProfileRelation qciProfileRef=ManagedElement=69012BB2,ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci8
 
-#BT-specific ends here
+#specific ends here
 
 nonew
