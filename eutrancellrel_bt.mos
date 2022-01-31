@@ -1,4 +1,4 @@
-#This script creates EUtranCellRelations between existing EUtranCellFDDs and ExternalEUtranCellFDDs according to BT's naming req.
+#This script creates EUtranCellRelations between existing EUtranCellFDDs and ExternalEUtranCellFDDs.
 #The name of the cellrelations will be [MCC][MNC]-[eNBId]-[cellid] of the target cell.
 #For relations to external cells, this is only true, if the external cell was created in the same format.
 #Note that X2 or ANR creates external cells with the same naming convention ([MCC][MNC]-[eNBId]-[cellid])
