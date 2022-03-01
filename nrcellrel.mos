@@ -1,0 +1,297 @@
+#*************************************#
+#                                     #
+#           nrcellrel.mos             #
+#                                     #
+#*************************************#
+
+#This script creates NRCellRelations between existing NRCellCUs and ExternalNRCellCUs:
+#NRCellRelation=plmnid[mcc]plmnid[mnc]-gnbid-celllocalid of the target NRCell.
+#Existing NRFreqRelations is a prerequisite of this script. See: NRFreqRelation_BT.mos
+#NRCellCU.nRFrequencyRef and ExternalNRCellCU.nRFrequencyRef is mandatory for this purpose.
+#nRFrequencyRef is autocreated by the autocreation of NRCellCU and ExternalNRCellCU.
+#If NRCellCUs were manually created, there's chance that nRFrequencyRef is missing.
+#The script checks this and stops if encounters this error.
+#NRCellDUs must be enabled before running this script.
+#Xn (TermPointToGNodeB) must be ENABLED for setting up NRCellRelations to ExternalNRCellCUs.
+#It expects NRCellCUs including "A", "B" or "C" in their names -as a hint to the host sector.
+#The script sets NRCellRelation.scellcandidate to 1 (ALLOWED) on all relations.
+#The script sets EUtranCellRelation.coverageIndicator to 1 if the source and the target has identical names
+#e.g 69012N(A)n281-69012N(A)n282 obviously belong to sector-A both and the coverageIndicator will be set to 2 (OVERLAP) automatically,
+#while 9322692610-auto1130692608's coverageIndicator will be set to 0 (NONE) and need to be changed manually -if needed.
+#Settings need to be checked against the parameter master, CR or LLD -as the script operates with default values.
+
+#*************************************#
+#        initial variables            #
+#*************************************#
+
+lt all
+unset all
+!rm -r $tempdir/*.*
+$nonRFrequencyRef = 0
+$noNRFreqRelation = 0
+l+ ~/gempa.log
+
+#*************************************#
+#             Printouts               #
+#*************************************#
+
+!echo '**********************************************************************' >> $tempdir/temp_error1.txt
+!echo '** ERROR: There are no NRCellCUs!********************************** **' >> $tempdir/temp_error1.txt
+!echo '** Enable NRCellDUs first and NRCellCUs wil be autocreated, or *******' >> $tempdir/temp_error1.txt
+!echo '** or define them manually! ******************************************' >> $tempdir/temp_error1.txt
+!echo '**********************************************************************' >> $tempdir/temp_error1.txt
+
+!echo '************************************************************************************************' >> $tempdir/temp_warning1.txt
+!echo '** WARNING: There are no ExternalNRCellCUs******************************************************' >> $tempdir/temp_warning1.txt
+!echo '** ExternalNRCellCU is autocreated by enabling Xn (TermPointToGNodeB) and **********************' >> $tempdir/temp_warning1.txt
+!echo '** by enabling NRCellDUs on the neighbor node. *************************************************' >> $tempdir/temp_warning1.txt
+!echo '** No relation has been created to ExternalNRCellCUs *******************************************' >> $tempdir/temp_warning1.txt
+!echo '************************************************************************************************' >> $tempdir/temp_warning1.txt
+ 
+!echo '*************************************************************************************************' >> $tempdir/temp_error2.txt
+!echo '** ERROR: There are no NRFrequencies ************************************************************' >> $tempdir/temp_error2.txt
+!echo '** NRFrequency is autocreated by the autocreation of NRCellCU and ExternalNRCellCU.! ************' >> $tempdir/temp_error2.txt
+!echo '** Xn (TermPointToGNodeB) must be ENABLED for setting up NRCellRelations to ExternalNRCellCUs. **' >> $tempdir/temp_error2.txt
+!echo '** NRCellDUs must be enabled before running this script. ****************************************' >> $tempdir/temp_error2.txt
+!echo '** Script execution is stopped ******************************************************************' >> $tempdir/temp_error2.txt
+!echo '*************************************************************************************************' >> $tempdir/temp_error2.txt
+
+!echo '*************************************************************' >> $tempdir/temp_error3.txt
+!echo '** ERROR: Some NRCellCUs have no nRFrequencyRefs defined ****' >> $tempdir/temp_error3.txt
+!echo '** This can happen only if NRCellCUs were manually created **' >> $tempdir/temp_error3.txt
+!echo '** Please define all nRFrequencyRefs first! *****************' >> $tempdir/temp_error3.txt
+!echo '** Script execution is stopped ******************************' >> $tempdir/temp_error3.txt
+!echo '*************************************************************' >> $tempdir/temp_error3.txt
+
+!echo '*************************************************************' >> $tempdir/temp_error4.txt
+!echo '** ERROR: Not all NRFreqRelations are defined ***************' >> $tempdir/temp_error4.txt
+!echo '** Please define all NRFreqRelations first! *****************' >> $tempdir/temp_error4.txt
+!echo '** Script execution is stopped ******************************' >> $tempdir/temp_error4.txt
+!echo '*************************************************************' >> $tempdir/temp_error4.txt
+
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+!echo '** SUCCESS: The following NRCellRelations have been added: ******' >> $tempdir/temp_success.txt
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+!echo '** NO CHANGE: All NRCellRelations are added already. ***********' >> $tempdir/temp_nonew.txt
+!echo '** The script has finished with the check! *********************' >> $tempdir/temp_nonew.txt
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+
+#*************************************#
+#       Function definitions          #
+#*************************************#
+
+pr ^NRCellCU=
+if $nr_of_mos = 0
+	!cat  $tempdir/temp_error1.txt
+	return
+fi
+
+mr cellgroup
+ma cellgroup ^NRCellCU=
+	for $mo in cellgroup
+		$i = $i + 1
+		$rdnnrcell[$i] = rdn($mo)
+		$moidnrcell[$i] = $rdnnrcell[$i] -s .*=
+		get $moidnrcell[$i] cellLocalId > $celllocalid[$i]
+	done
+
+pr ^NRFrequency=
+if $nr_of_mos = 0
+	!cat  $tempdir/temp_error2.txt
+	return
+fi
+
+get ^GNBCUCPFunction plmnid > $plmnid
+get ^GNBCUCPFunction gnbid$ > $gnbid
+
+pr ^ExternalNRCellCU=
+if $nr_of_mos = 0
+	!cat $tempdir/temp_warning1.txt
+	l+mm $tempdir/dummy
+	nonew
+	l-
+	return
+fi
+
+mr gnbfgroup
+ma gnbfgroup ^GNBCUCPFunction=
+for $mo in gnbfgroup
+	$ldnGNBCUCPFunction = ldn($mo)
+done
+
+mr externalnrcellcugroup
+ma externalnrcellcugroup ^ExternalNRCellCU=
+for $mo in externalnrcellcugroup
+	$m = $m + 1
+	$rdnexternalnrcell[$m] = rdn($mo)
+	$ldnexternalnrcell[$m] = ldn($mo)
+	$moidexternalnrcell[$m] = $rdnexternalnrcell[$m] -s .*=
+	$nRCellRef[$m] = $ldnexternalnrcell[$m] -s .*,N -r N
+	get $moidexternalnrcell[$m] celllocalid > $extcelllocalid[$m]
+	$externalgnbcucpfunction[$m] = $ldnexternalnrcell[$m] -s ,ExternalNRCellCU=*.*
+	get $externalgnbcucpfunction[$m] gnbid$ > $gnbid[$m]
+done
+
+func nonew
+	$linecontent = testfile($tempdir/result.txt)
+	if $nr_of_lines  = 0
+		!cat $tempdir/temp_nonew.txt
+	else
+		!cat $tempdir/temp_success.txt
+		!cat $tempdir/result.txt
+	fi
+endfunc
+
+func intraresult
+	pr $rdnnrcell[$j],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid-$celllocalid[$k]
+	if $nr_of_mos = 1
+		!echo $rdnnrcell[$j],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid-$celllocalid[$k] >> $tempdir/result.txt
+	fi
+endfunc
+
+func extresult
+	pr $rdnnrcell[$p],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid[$n]-$extcelllocalid[$n]
+	if $nr_of_mos = 1
+		!echo $rdnnrcell[$p],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid[$n]-$extcelllocalid[$n] >> $tempdir/result.txt
+	fi
+endfunc
+
+func covind
+		if $moidnrcell[$j] ~ A
+			$sourcesect = a
+		else if $moidnrcell[$j] ~ B
+			$sourcesect = b
+		else if $moidnrcell[$j] ~ C
+			$sourcesect = c
+		fi
+		if $moidnrcell[$k] ~ A
+			$targetsect = a
+		else if $moidnrcell[$k] ~ B
+			$targetsect = b
+		else if $moidnrcell[$k] ~ C
+			$targetsect = c
+		fi
+		if $sourcesect = $targetsect
+			set $rdnnrcell[$j],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid-$celllocalid[$k] coverageIndicator 2
+		else 
+			set $rdnnrcell[$j],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid-$celllocalid[$k] coverageIndicator 0
+		fi
+endfunc
+
+func covindext
+			set $rdnnrcell[$p],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid[$n]-$extcelllocalid[$n] coverageIndicator 0
+endfunc
+
+func relcreate
+		$nRFrequency[$k] = $nRFrequencyRef[$k] -s .*=
+		$nRFrequency[$k] = $nRFrequency[$k] -s -.*
+		pr $rdnnrcell[$j]
+		pr $rdnnrcell[$k]
+		pv $celllocalid[$j]
+		pv $celllocalid[$k]
+		get $rdnnrcell[$j],NRCellRelation= nRCellRef $rdnnrcell[$k]$
+		if $nr_of_mos = 0
+			crn $rdnnrcell[$j],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid-$celllocalid[$k] 
+				nRCellRef $rdnnrcell[$k]
+				nRFreqRelationRef $rdnnrcell[$j],NRFreqRelation=$nRFrequency[$k]
+			end
+			intraresult
+			covind
+		fi
+endfunc
+
+func IntNRFreqRelationcheck
+		get $moidnrcell[$k] nRFrequencyRef > $nRFrequencyRef[$k]
+		if $nRFrequencyRef[$k] ~ ^$
+			$nonRFrequencyRef = 1
+		fi
+		get $rdnnrcell[$j],NRFreqRelation= nRFrequencyRef $nRFrequencyRef[$k]
+		if $nr_of_mos = 0
+			$noNRFreqRelation = 1
+		fi
+		if $nonRFrequencyRef = 1 || $noNRFreqRelation = 1
+			break
+		else
+			relcreate
+		fi
+endfunc
+
+func increase_index_of_target_NRCellCU
+	$a = $i + 1
+	for $k = 1 to $i
+	if $k != $j && $k < $a
+		IntNRFreqRelationcheck
+	fi
+	if $nonRFrequencyRef = 1 || $noNRFreqRelation = 1
+		break
+	fi
+	done
+endfunc
+
+func decrease_index_of_target_NRCellCU
+	for $k = $i to 1
+	if $k != $j && $k > 0
+		IntNRFreqRelationcheck
+	fi
+	if $nonRFrequencyRef = 1 || $noNRFreqRelation = 1
+		break
+	fi
+	done
+endfunc
+
+func add_externalnrcell_to_cell
+	for $n = 1 to $m
+		get $moidexternalnrcell[$n] nRFrequencyRef > $nRFrequencyRef[$n]
+		$nRFrequency[$n] = $nRFrequencyRef[$n] -s .*=
+		$nRFrequency[$n] = $nRFrequency[$n] -s -.*
+		pv $nRCellRef[$n]
+		get $rdnnrcell[$p],NRCellRelation= nRCellRef $nRCellRef[$n]
+				
+		if $nr_of_mos = 0
+			
+			get $externalgnbcucpfunction[$n] plmnid > $plmnid
+			pv nRCellRef[$n]
+			crn $rdnnrcell[$p],NRCellRelation=$plmnid[mcc]$plmnid[mnc]-$gnbid[$n]-$extcelllocalid[$n]
+				nRCellRef $nRCellRef[$n]
+				nRFreqRelationRef $rdnnrcell[$p],NRFreqRelation=$nRFrequency[$n]
+			end
+			extresult
+			covindext
+		fi
+	done
+endfunc
+
+#*************************************#
+#       Main program starts           #
+#*************************************#
+
+for $j = 1 to $i
+	increase_index_of_target_NRCellCU
+	if $nonRFrequencyRef = 1 || $noNRFreqRelation = 1
+		break
+	fi
+done
+
+for $j = $i to 1
+	decrease_index_of_target_NRCellCU
+	if $nonRFrequencyRef = 1 || $noNRFreqRelation = 1
+		break
+	fi
+done
+
+if $nonRFrequencyRef = 1
+	!cat $tempdir/temp_error3.txt
+else if $noNRFreqRelation = 1
+	!cat $tempdir/temp_error4.txt
+fi
+if $nonRFrequencyRef = 1 || $noNRFreqRelation = 1
+	return
+fi
+
+for $p = 1 to $i
+	add_externalnrcell_to_cell
+done
+
+nonew

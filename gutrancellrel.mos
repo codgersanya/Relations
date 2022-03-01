@@ -1,0 +1,130 @@
+#This script defines GUtranCellRelations according to BT's naming format requirement, where
+#GUtranCellRelation=ExternalGUtranCell and
+#ExternalGUtranCell is the (target) and autocreated upon X2 becomes operational as #[MCC][MNC]-[gNBid]-[NR celllocalid], where
+#gNBid is completed to 15-digits.
+#e.g. GUtranCellRelation=23430-000000000069021-0
+#EUtranCellFDDs, GUtranFreqRelations and ExternalGUtranCells must be configured before running this script!
+
+
+lt all
+unset all
+$return = 0
+!rm -r $tempdir/*.*
+
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+!echo '** ERROR: There are no EUtranCellFDDs! **************' >> $tempdir/temp_error1.txt
+!echo '** Please define them before running this script! ***' >> $tempdir/temp_error1.txt
+!echo '** Script execution is stopped **********************' >> $tempdir/temp_error1.txt
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+ 
+!echo '*****************************************************************************************************' >> $tempdir/temp_error2.txt
+!echo '** ERROR: There are no ExternalGUtranCells! *********************************************************' >> $tempdir/temp_error2.txt
+!echo '** Note that even own NRCellDUs are represented as ExternalGUtranCells under the EnodebFunction, if *' >> $tempdir/temp_error2.txt
+!echo '** GNBCUCPFunction and EnodebFunction is hosted on the same BB. *************************************' >> $tempdir/temp_error2.txt
+!echo '** Please define ExternalGNodeBFunction(s) and TermPointToGNB(s) first! *****************************' >> $tempdir/temp_error2.txt
+!echo '** ExternalGUtranCells will be autocreated after TermPointToGNB and NRCellDU become operational!*****' >> $tempdir/temp_error2.txt
+!echo '** Script execution is stopped! *********************************************************************' >> $tempdir/temp_error2.txt
+!echo '*****************************************************************************************************' >> $tempdir/temp_error2.txt
+ 
+!echo '***************************************************************************' >> $tempdir/temp_error3.txt
+!echo '** ERROR: GUtranFreqRelation is missing!                                 **' >> $tempdir/temp_error3.txt
+!echo '** Please add all GUtranFreqRelations first!                             **' >> $tempdir/temp_error3.txt
+!echo '** Script execution is stopped                                           **' >> $tempdir/temp_error3.txt
+!echo '***************************************************************************' >> $tempdir/temp_error3.txt
+
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+!echo '** SUCCESS: The following GUtranCellRelations have been added: **' >> $tempdir/temp_success.txt
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+
+!echo '********************************************************************' >> $tempdir/temp_nonew.txt
+!echo '** NO CHANGE: All GUtranCellRelations are added already. ***********' >> $tempdir/temp_nonew.txt
+!echo '** The script has finished with the check! *************************' >> $tempdir/temp_nonew.txt
+!echo '********************************************************************' >> $tempdir/temp_nonew.txt
+
+pr ^EUtranCellFDD=
+if $nr_of_mos = 0
+	!cat  $tempdir/temp_error1.txt
+	return
+fi
+
+mr cellgroup
+ma cellgroup ^EUtranCellFDD=......11
+ma cellgroup ^EUtranCellFDD=......2
+	for $mo in cellgroup
+		$i = $i + 1
+		$ldnEUtranCellFDD[$i] = ldn($mo)
+		$rdnEUtranCellFDD[$i] = rdn($mo)
+		$moidEUtranCellFDD[$i] = $rdnEUtranCellFDD[$i] -s .*=
+	done
+	
+pr ^ExternalGUtranCell=
+if $nr_of_mos = 0
+	!cat $tempdir/temp_error2.txt 
+	return
+fi
+
+mr ExternalGUtranCellgroup
+ma ExternalGUtranCellgroup ^ExternalGUtranCell=
+	for $mo in ExternalGUtranCellgroup
+		$m = $m + 1
+		$rdnExternalGUtranCell[$m] = rdn($mo)
+		$ldnExternalGUtranCell[$m] = ldn($mo)
+		$moidExternalGUtranCell[$m] = $rdnExternalGUtranCell[$m] -s .*=
+	done
+
+func nonew
+	$linecontent = testfile($tempdir/result.txt)
+	if $nr_of_lines  = 0
+		!cat $tempdir/temp_nonew.txt
+	else
+		!cat $tempdir/temp_success.txt
+		!cat $tempdir/result.txt
+	fi
+endfunc
+
+func result
+	pr $ldnEUtranCellFDD[$p],GUtranFreqRelation=$GUtranFrequency[$n],GUtranCellRelation=$moidExternalGUtranCell[$n]
+	if nr_of_mos != 0
+	!echo $ldnEUtranCellFDD[$p],GUtranFreqRelation=$GUtranFrequency[$n],GUtranCellRelation=$moidExternalGUtranCell[$n] >> $tempdir/result.txt
+	fi
+endfunc
+
+func relcreate
+	get $ldnEUtranCellFDD[$p],GUtranFreqRelation=$GUtranFrequency[$n],GUtranCellRelation= neighborCellRef $moidExternalGUtranCell[$n]
+	if $nr_of_mos = 0
+		crn $ldnEUtranCellFDD[$p],GUtranFreqRelation=$GUtranFrequency[$n],GUtranCellRelation=$moidExternalGUtranCell[$n]
+		neighborCellRef $ldnExternalGUtranCell[$n]
+		end
+		result
+	fi
+endfunc
+
+func add_ExternalGUtranCell_to_cell
+	for $n = 1 to $m
+		get $moidExternalGUtranCell[$n] gUtranSyncSignalFrequencyRef > $gUtranSyncSignalFrequencyRef[$n]
+		$GUtranFrequency[$n] = $gUtranSyncSignalFrequencyRef[$n] -s .*=
+		$GUtranFrequency[$n] = $GUtranFrequency[$n] -s -.*
+		
+		get $ldnEUtranCellFDD[$p],GUtranFreqRelation=$GUtranFrequency[$n] gUtranSyncSignalFrequencyRef
+		if $nr_of_mos = 0
+			!cat $tempdir/temp_error3.txt 
+			$return = 1
+			break
+		else
+		relcreate
+		fi
+	done
+endfunc
+
+for $p = 1 to $i
+	add_ExternalGUtranCell_to_cell
+	if $return = 1
+		break
+	fi
+done
+
+if $return = 1
+	return
+fi 
+
+nonew
