@@ -1,0 +1,840 @@
+#*************************************#
+#                                     #
+#           nrfreqrel.mos             #
+#                                     #
+#*************************************#
+
+#This script adds NRFreqRelations to the node -based on existing NRFrequencies.
+#NR mobility specific settings (ENDC and NR SA both) are also included. See the label "NR mobility specific settings start here".
+
+#*************************************#
+#        initial variables            #
+#*************************************#
+
+lt all
+unset all
+!rm -r $tempdir/*.*
+
+#*************************************#
+#             Printouts               #
+#*************************************#connModeAllowedPCell
+
+!echo '*****************************************************************' >> $tempdir/temp_error0.txt
+!echo '** ERROR: There is no NRNetwork configured!**********************' >> $tempdir/temp_error0.txt
+!echo '** Please check whether the node is configured for 5G! **********' >> $tempdir/temp_error0.txt
+!echo '*****************************************************************' >> $tempdir/temp_error0.txt
+
+!echo '**********************************************************************' >> $tempdir/temp_error1.txt
+!echo '** ERROR: There are no NRCellCUs!********************************** **' >> $tempdir/temp_error1.txt
+!echo '** Enable NRCellDUs first and NRCellCUs wil be autocreated, or *******' >> $tempdir/temp_error1.txt
+!echo '** or define them manually! ******************************************' >> $tempdir/temp_error1.txt
+!echo '**********************************************************************' >> $tempdir/temp_error1.txt
+
+!echo '*************************************************************************************************' >> $tempdir/temp_error2.txt
+!echo '** ERROR: Some or all of the NRFrequencies are missing! *****************************************' >> $tempdir/temp_error2.txt
+!echo '** NRFrequency is autocreated by the autocreation of NRCellCU and ExternalNRCellCU.! ************' >> $tempdir/temp_error2.txt
+!echo '** Xn (TermPointToGNodeB) must be ENABLED for setting up NRCellRelations to ExternalNRCellCUs. **' >> $tempdir/temp_error2.txt
+!echo '** NRCellDUs must be enabled before running this script. ****************************************' >> $tempdir/temp_error2.txt
+!echo '** Script execution is stopped ******************************************************************' >> $tempdir/temp_error2.txt
+!echo '*************************************************************************************************' >> $tempdir/temp_error2.txt
+
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+!echo '** SUCCESS: The following NRFreqRelations have been added: ******' >> $tempdir/temp_success.txt
+!echo '*****************************************************************' >> $tempdir/temp_success.txt
+
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+!echo '** NO CHANGE: All NRFreqRelations are added already. ***********' >> $tempdir/temp_nonew.txt
+!echo '** The script has finished with the check! *********************' >> $tempdir/temp_nonew.txt
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+
+#*************************************#
+#       Function definitions          #
+#*************************************#
+
+func mocheck
+	mr NRNETWORKGROUP
+	ma NRNETWORKGROUP ^NRNetwork=
+	if $nr_of_mos = 0
+		!cat  $tempdir/temp_error0.txt
+		return
+	fi
+	for $mo in NRNETWORKGROUP
+		$rdnnrnetwork = rdn($mo)
+	done
+	
+	pr ^NRCellCU=
+	if $nr_of_mos = 0
+		!cat  $tempdir/temp_error1.txt
+		return
+	fi
+	
+	mr cellgroup
+	ma cellgroup ^NRCellCU=
+		for $mo in cellgroup
+			$i = $i + 1
+			$rdnnrcell[$i] = rdn($mo)
+			$ldnnrcell[$i] = ldn($mo)
+			$moidnrcell[$i] = $ldnnrcell[$i] -s .*=
+		done
+	
+	pr ^NRFrequency=
+	if $nr_of_mos = 0
+		!cat  $tempdir/temp_error2.txt
+		return
+	fi
+	
+	mr nrfrequencygroup
+	ma nrfrequencygroup ^NRFrequency=
+		for $mo in nrfrequencygroup
+			$j = $j + 1
+			$rdnnrfrequency[$j] = rdn($mo)
+			$ldnnrfrequency[$j] = ldn($mo)
+			$moidnrfrequency[$j] = $rdnnrfrequency[$j] -s .*=
+			$moidnrfrequency[$j] = $moidnrfrequency[$j] -s -.*
+			
+	done
+endfunc
+
+func nonew
+	$linecontent = testfile($tempdir/result.txt)
+	if $nr_of_lines  = 0
+		!cat $tempdir/temp_nonew.txt
+	else
+		!cat $tempdir/temp_success.txt
+		!cat $tempdir/result.txt
+	fi
+	$linecontent = testfile($tempdir/nossb.txt)
+	if $nr_of_lines  > 0
+		!cat $tempdir/nossb.txt
+	fi
+endfunc
+
+func result
+	pr $ldnnrcell[$m],NRFreqRelation=$moidnrfrequency[$k]
+	if $nr_of_mos != 0
+		!echo $ldnnrcell[$m],NRFreqRelation=$moidnrfrequency[$k] >> $tempdir/result.txt
+	fi
+endfunc
+
+func relcreate
+	get $rdnnrcell[$m] threshServingLowQ > $threshServingLowQ[$m]
+	if $threshServingLowQ[$m] >= 0
+		crn $ldnnrcell[$m],NRFreqRelation=$moidnrfrequency[$k]
+		nRFrequencyRef $ldnnrfrequency[$k]
+		threshXLowQ 0
+		threshXHighQ 0
+		end
+	else
+		crn $ldnnrcell[$m],NRFreqRelation=$moidnrfrequency[$k]
+		nRFrequencyRef $ldnnrfrequency[$k]
+		end
+	fi
+	result
+endfunc
+
+func add_nrfrequency_to_cell
+	for $k = 1 to $j
+		print $rdnnrcell[$m],NRFreqRelation= nRFrequencyRef $rdnnrnetwork,$rdnnrfrequency[$k]
+		get $rdnnrcell[$m],NRFreqRelation= nRFrequencyRef $rdnnrnetwork,$rdnnrfrequency[$k]
+		if $nr_of_mos = 0
+			relcreate
+		fi
+	done
+endfunc
+
+func newnrfreqcrerror
+	pr $nRFrequencyRef[$m]
+	if $nr_of_mos = 0
+		!cat  $tempdir/temp_error2.txt
+		break
+		$return = 1
+	fi
+endfunc
+
+func newnrfreqcr
+	if $nr_of_mos = 0
+		crn $nRFrequencyRef[$m]
+	fi
+endfunc
+
+func nrfreki
+	get $moidnrcell[$m] ssbFrequency$ > $ssbFrequency[$m]
+	if ssbFrequency[$m] = 0
+		get $moidnrcell[$m] ssbFrequencyAutoSelected > $ssbFrequency[$m]
+	fi
+	get $moidnrcell[$m] ssbSubCarrierSpacing 				> $ssbSubCarrierSpacing[$m]
+	get $moidnrcell[$m] ssbPeriodicity       				> $ssbPeriodicity[$m]
+	get $moidnrcell[$m] ssbOffset$           				> $ssbOffset[$m]
+	if $ssbOffset[$m] = 0		
+		get $moidnrcell[$m] ssbOffsetAutoSelected   		> $ssbOffset[$m]
+	fi		
+	get $moidnrcell[$m] ssbDuration$          				> $ssbDuration[$m]
+	if $ssbDuration[$m] = 0
+		get $moidnrcell[$m] ssbDurationAutoSelected         > $ssbDuration[$m]
+	fi
+	
+	if $ssbFrequency[$m] = 0 || $ssbSubCarrierSpacing[$m] = 0 || $ssbPeriodicity[$m] = 0 || $ssbOffset[$m] = ^$ || $ssbDuration[$m] = ^$
+		!echo '**********************************************************************************************'  >> $tempdir/nossb.txt
+		!echo 'The SSB-configuration of $moidnrcell[$m] is incomplete and the nRFrequencyRef is also missing!'	>> $tempdir/nossb.txt
+		!echo 'NRFreqRelation to $moidnrcell[$m] couldn not be verified!										>> $tempdir/nossb.txt
+		!echo 'Define the missing ssb for $moidnrcell[$m] and run this script again!' 							>> $tempdir/nossb.txt
+		!echo '**********************************************************************************************'  >> $tempdir/nossb.txt
+	else
+		$nRFrequencyRef[$m] = NRNetwork=$rdnnrnetwork,NRFrequency=$ssbFrequency[$m]-$ssbSubCarrierSpacing[$m]-$ssbPeriodicity[$m]-$ssbOffset[$m]-$ssbDuration[$m]
+		pr $nRFrequencyRef[$m]			
+		newnrfreqcr
+		newnrfreqcrerror
+	fi
+endfunc
+
+func nrfrekiref
+	get $moidnrcell[$m] nRFrequencyRef > $nRFrequencyRef[$m]
+	if $nRFrequencyRef[$m] ~ ^$
+		nrfreki
+	fi
+endfunc
+
+#*************************************#
+#       Main program starts           #
+#*************************************#
+
+mocheck	
+for $m = 1 to $i
+	nrfrekiref
+	if $return = 1
+		break
+	fi
+	add_nrfrequency_to_cell
+done
+if $return = 1
+	return
+fi
+
+#*****************************************************#
+#      NR mobility specific settings start here       #
+#*****************************************************#
+
+mr GNBCUCPFUNCTIONGROUP
+ma GNBCUCPFUNCTIONGROUP ^GNBCUCPFunction=
+for $mo in GNBCUCPFUNCTIONGROUP
+	$gnbcucpfunctionldn = ldn($mo)
+done
+
+mr GNBDUFUNCTIONGROUP
+ma GNBDUFUNCTIONGROUP ^GNBDUFunction=
+for $mo in GNBDUFUNCTIONGROUP
+	$gnbdufunctionldn = ldn($mo)
+done
+
+#NR SA defined?
+pr TermPointToAmf
+if $nr_of_mos > 0
+	$AMF = 1
+else
+	$AMF = 0
+fi
+
+#Are highband NRCells (TDD 3500 or 3600) defined?
+mr HIGHBAND
+ma HIGHBAND NRCellDU ssbFrequency 636960
+ma HIGHBAND NRCellDU ssbFrequency 646272
+if $nr_of_mos > 0
+	$highbandexist = 1
+else
+	$highbandexist = 0
+fi
+
+#------------------------------------Measurement Gap-Aware NR Scheduling---------------------------------------------
+#measGapPattern 0  --> 1
+#15(INACTIVITYTIMER_100MS) --> 7(INACTIVITYTIMER_8MS)
+#39(ONDURATIONTIMER_10MS) --> 38(ONDURATIONTIMER_8MS)
+
+
+func measGapPattern
+	for $mo in eutrancellfdd
+	get $mo administrativestate > $admsteutrancell
+	if $admsteutrancell ~ 1
+		$i = $i + 1
+		$rdneutrancellfdd[$i] = rdn($mo)
+		bl $mo
+	fi
+	done
+	##Default values:
+	set EUtranCellFDD measGapPattern 1
+	set EUtranCellFDD measGapPattEndc 1
+	for $m = 1 to $i
+		deb $rdneutrancellfdd[$m]
+	done
+endfunc
+
+$i = 0
+mr eutrancellfdd
+ma eutrancellfdd ^EUtranCellFDD=
+if $nr_of_mos > 0
+	measGapPattern
+fi
+
+#$m = 0
+#mr NRCellDU
+#ma NRCellDU ^NRCellDU=
+#for $mo in NRCellDU
+#	get $mo administrativestate > $admstnrcell
+#	if $admstnrcell ~ 1
+#		$m = $m + 1
+#		$rdnNRCellDU[$m] = rdn($mo)
+#		bl $mo
+#	fi
+#done	
+#set NRCellDU drxInactivityTimer 7
+#set NRCellDU drxOnDurationTimer 38
+#for $m = 1 to $m
+#	deb $rdnNRCellDU[$m]
+#done
+
+#-------------------------- Mcpc (Mobility control at poor coverage) function ----------------------------------------------
+# Mcpc
+#	McpcPCellProfile [0..]
+#	McpcPSCellProfile [0..]
+#	McpcPCellNrFreqRelProfile [0..]
+#	McpcPSCellNrFreqRelProfile [0..]
+#	McpcPCellEUtranFreqRelProfile [0..]
+
+#cr $gnbcucpfunctionldn,Mcpc=1 #autocreated
+
+#-------------------------- McpcPCellProfile settings (5G SA HO) ---------------------------------------------- 
+//5G SA  - McpcPCellProfile Mobility control at poor coverage (MCPC) for PCell. Applies to UEs which use the cell as PCell. Attributes are used on cell level
+
+
+pr Mcpc=1,McpcPCellProfile=1
+if $AMF > 0 && $nr_of_mos = 0
+	cr GNBCUCPFunction=gNBId$gNBId,Mcpc=1,McpcPCellProfile=1
+	ldc McpcPCellProfile=1
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base lowHighFreqPrioClassification 7
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base mcpcQuantityList 0
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base prefUeGroupList
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=10,threshold1=-156,threshold2=-156,timeToTrigger=640
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpCandidateB2 hysteresis=10,threshold1=-156,threshold2EUtra=-140,timeToTrigger=640
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpCritical hysteresis=10,threshold=-156,timeToTrigger=160,timeToTriggerA1=-1
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=BasersrpCriticalEnabled false
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpSearchTimeRestriction -1
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpSearchZone hysteresis=10,threshold=-156,timeToTrigger=160,timeToTriggerA1=-1
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base ueConfGroupList
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base ueGroupList
+	set NRCellCU mcpcPCellEnabled 1
+	set NRCellCU McpcPCellProfileref $gnbcucpfunctionldn,Mcpc=1,McpcPCellProfile=1
+else 
+	set NRCellCU mcpcPCellEnabled 0
+	set NRCellCU McpcPCellProfileref
+fi
+
+#-------------------------- McpcPCellNrFreqRelProfile settings (5G SA HO) ---------------------------------------------- 
+//5G SA  - Mobility control at poor coverage (MCPC) for PCell.  Applies to UEs which use the cell as PCell. Attributes are used on NR frequency relation level.
+#GNBCUCPFunction
+#	NRCellCU
+#	NRFreqRelation 
+	
+set NRCellCU.*,NRFreqRelation mcpcPCellNrFreqRelProfileRef Mcpc=1,McpcPCellNrFreqRelProfile=Default
+
+#cr $gnbcucpfunctionldn,Mcpc=1,McpcPCellNrFreqRelProfile=Default #autocreated
+#cr $gnbcucpfunctionldn,Mcpc=1,McpcPCellNrFreqRelProfile=Default,McpcPCellNrFreqRelProfileUeCfg=Base #autocreated
+set Mcpc=1,McpcPCellNrFreqRelProfile=Default,McpcPCellNrFreqRelProfileUeCfg=Base inhibitMeasForCellCandidate false
+set Mcpc=1,McpcPCellNrFreqRelProfile=Default,McpcPCellNrFreqRelProfileUeCfg=Base rsrpCandidateA5Offsets threshold1Offset=0,threshold2Offset=0
+
+#-------------------------- McpcPCellEUtranFreqRelProfile settings (5G SA HO) ---------------------------------------------- 
+//5G SA  - Mobility control at poor coverage (MCPC) for PCell.  Applies to UEs that use the cell as PCell. Attributes are used on E-UTRAN frequency relation level.
+#GNBCUCPFunction
+#	NRCellCU
+#	EUtranFreqRelation 
+
+pr NRCellCU.*,EUtranFreqRelation
+if $nr_of_mos > 0
+	set NRCellCU.*,EUtranFreqRelation McpcPCellEUtranFreqRelProfileref Mcpc=1,McpcPCellEUtranFreqRelProfile=Default
+fi
+
+#-------------------------McpcPCellEUtranFreqRelProfileUeCfg---------------------------------------------- 
+
+#cr $gnbcucpfunctionldn,Mcpc=1,McpcPCellEUtranFreqRelProfile=Default #autocreated
+#cr $gnbcucpfunctionldn,Mcpc=1,McpcPCellEUtranFreqRelProfile=Default,McpcPCellEUtranFreqRelProfileUeCfg=Base #autocreated
+set Mcpc=1,McpcPCellEUtranFreqRelProfile=Default,McpcPCellEUtranFreqRelProfileUeCfg=Base inhibitMeasForCellCandidate false
+set Mcpc=1,McpcPCellEUtranFreqRelProfile=Default,McpcPCellEUtranFreqRelProfileUeCfg=Base rsrpCandidateB2Offsets threshold1Offset=0,threshold2EUtraOffset=0
+
+
+#-------------------------- McpcPSCellProfile settings (5G NSA HO)----------------------------------------------
+//5G NSA - McpcPSCellProfile - Mobility control at poor coverage function for PSCell in EN-DC.  Applies to UEs that use this cell as PSCell in EN-DC. Attributes are used on cell level.
+
+pr Mcpc=1,McpcPSCellProfile=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,Mcpc=1,McpcPSCellProfile=1
+	ldc McpcPSCellProfile=1
+	wait 1
+fi
+
+set NRCellCU mcpcPSCellProfileRef Mcpc=1,McpcPSCellProfile=1
+set nrcellcu mcpcPSCellEnabled true
+set McpcPSCellNrFreqRelProfileUeCfg inhibitMeasForCellCandidate false
+set McpcPSCellNrFreqRelProfileUeCfg rsrpCandidateA5Offsets threshold1Offset=0, threshold2Offset=0 
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base lowHighFreqPrioClassification 7
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base mcpcQuantityList 0
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCriticalEnabled true
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpSearchTimeRestriction 12000
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpSearchZone hysteresis=30, threshold=-95, timeToTrigger=160, timeToTriggerA1=-1
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=30, threshold1=-98, threshold2=-96, timeToTrigger=320
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCritical hysteresis=10, threshold=-124, timeToTrigger=160
+
+#-------------------------- McpcPSCellNrFreqRelProfile settings (5G NSA HO) ----------------------------------------------
+//5G NSA - Mobility control at poor coverage function for PSCell in EN-DC. Applies to UEs that use this cell as PSCell in EN-DC. Attributes are used on NR frequency relation level.
+
+#crn $gnbcucpfunctionldn,Mcpc=1,McpcPSCellNrFreqRelProfile=Default #autocreated
+#userLabel 
+#end
+
+#crn $gnbcucpfunctionldn,Mcpc=1,McpcPSCellNrFreqRelProfile=Default,McpcPSCellNrFreqRelProfileUeCfg=Base #autocreated
+#inhibitMeasForCellCandidate false
+#rsrpCandidateA5Offsets threshold1Offset=0,threshold2Offset=0
+#userLabel 
+#end
+
+set NRFreqRelation mcpcPSCellNrFreqRelProfileRef Mcpc=1,McpcPSCellNrFreqRelProfile=Default
+set McpcPSCellNrFreqRelProfile=Default,McpcPSCellNrFreqRelProfileUeCfg=Base rsrpCandidateA5Offsets threshold1Offset=0,threshold2Offset=0
+
+#-------------------------- TrStSaCellProfile settings ----------------------------------------------
+//5G SA  - Traffic steering function for PCell and SCells in NR Standalone. Applicable to UEs that use this cell as PCell in NR Standalone. Attributes are used on cell level.
+
+set NRCellCU TrStSaCellProfileRef TrafficSteering=1,TrStSaCellProfile=Default
+
+#-------------------------- TrStSaCellProfileUeCfg---------------------------------------------------- 
+//5G SA  - Traffic steering function for PCell and SCells in NR Standalone, UE configuration group.Applicable to UEs that use this cell as PCell in NR Standalone. Attributes are used on cell level.
+
+#cr $gnbcucpfunctionldn,TrafficSteering=1,TrStSaCellProfile=Default #autocreated
+#cr $gnbcucpfunctionldn,TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base #autocreated
+set TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base actionAtRelease 0
+set TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base capAwarePCellSelEnabled false
+set TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base criterionBetterUeConfig 100
+set TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base rsrpPCellCandidate hysteresis=10,threshold2=-156,timeToTrigger=640
+set TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base t320 30
+set TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base userLabel
+
+#-------------------------- TrStSaNrFreqRelProfile settings ----------------------------------------------
+//Traffic steering function for PCell and SCells in NR Standalone. Applicable to UEs that use this cell as PCell in NR Standalone. Attributes are used on NR frequency relation level.
+#GNBCUCPFunction
+#	NRCellCU
+#	NRFreqRelation
+
+#No settings 
+set NRCellCU.*,NRFreqRelation TrStSaNrFreqRelProfileref TrafficSteering=1,TrStSaNrFreqRelProfile=Default
+
+#--------------------------TrStSaNrFreqRelProfileUeCfg-------------------------
+//Traffic steering function for PCell and SCells in NR Standalone, UE configuration group.Applicable to UEs that use this cell as PCell in NR Standalone. Attributes are used on NR frequency relation level.
+#TrafficSteering
+#		TrStSaNrFreqRelProfile
+#		TrStSaNrFreqRelProfileUeCfg
+
+#cr $gnbcucpfunctionldn,TrafficSteering=1,TrStSaNrFreqRelProfile=Default #autocreated
+#cr $gnbcucpfunctionldn,TrafficSteering=1,TrStSaNrFreqRelProfile=Default,TrStSaNrFreqRelProfileUeCfg=Base #autocreated
+set TrafficSteering=1,TrStSaNrFreqRelProfile=Default,TrStSaNrFreqRelProfileUeCfg=Base pCellAllowed false
+set TrafficSteering=1,TrStSaNrFreqRelProfile=Default,TrStSaNrFreqRelProfileUeCfg=Base rsrpPCellCandidateOffset 0
+
+
+#-------------------------- TrStPSCellProfile settings ----------------------------------------------
+//5G NSA - Traffic steering function for PSCell in EN-DC. Applicable to UEs using this cell as PSCell in EN-DC. Attributes are used on cell level.
+
+pr TrafficSteering=1,TrStPSCellProfile=1
+if $nr_of_mos = 0
+	crn TrafficSteering=1,TrStPSCellProfile=1
+	userLabel PSCCtoHighPrio 1
+	end	
+	#cr TrafficSteering=1,TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base #autocreated
+	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base hiPrioDetInactiveTime 500
+	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base hiPrioDetMeasurementTime 120000
+	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base hiPrioDetStartTime 10
+	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=30,threshold2=-95,timeToTrigger=640
+	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base userLabel
+fi
+
+set NRCellCU trStPSCellProfileRef TrafficSteering=1,TrStPSCellProfile=1
+set nrcellcu hiPrioDetEnabled true
+
+#-------------------------- UeMC (UE mobility control) function ---------------------------------------------
+#GNBCUCPFunction
+#UeMC
+#	UeMCCellProfile [0..]
+#	UeMCNrFreqRelProfile [0..]
+#	UeMCEUtranFreqRelProfile [0..]
+
+#cr GNBCUCPFunction=gNBId$gNBId,UeMC=1 #autocreated
+#wait 1
+#ldc UeMC=1
+
+
+if $highbandexist = 1
+	set UeMC=1 freqSelAtBlindRwrToEutran 0
+	#Default value..
+fi
+#set UeMC=1 ueMCCellProfileEnabled true
+#No such parameter in 22Q1 MOM
+
+#-------------------------- UeMCCellProfile settings ----------------------------------------------
+//UE mobility control attributes. The attributes are used on cell level.
+
+#cr GNBCUCPFunction=gNBId$gNBId,UeMC=1,UeMCCellProfile=1 #autocreated
+#wait 1
+#ldc UeMCCellProfile=1
+
+set UeMC=1,UeMCCellProfile=1 sMeasure -29
+if $highbandexist = 1
+	set UeMC=1,UeMCCellProfile=1 filterCoefficientNrRsrpHigh 8 
+	set UeMC=1,UeMCCellProfile=1 filterCoefficientNrRsrpLow 8
+else
+	set UeMC=1,UeMCCellProfile=1 filterCoefficientNrRsrpHigh 4 
+	set UeMC=1,UeMCCellProfile=1 filterCoefficientNrRsrpLow 4
+fi
+
+set NRCellCU ueMCCellProfileRef UeMC=1,UeMCCellProfile=1
+
+#-------------------------- UeMCNrFreqRelProfile settings ----------------------------------------------
+//UE mobility control attributes. Attributes are used on NR frequency relation level.
+
+$y = 0
+for $x = 1 to 6
+	pr UeMC=1,UeMCNrFreqRelProfile=$x
+	if $nr_of_mos = 0
+		$y = 1
+		crn UeMC=1,UeMCNrFreqRelProfile=$x
+		ueConfGroupType 0
+		end
+		#cr UeMC=1,UeMCNrFreqRelProfile=$x,UeMCNrFreqRelProfileUeCfg=Base #autocreated
+	fi
+done
+if $y = 1
+	wait 1
+	ldc UeMC=1
+fi
+
+set UeMCNrFreqRelProfileUeCfg connModeAllowedPSCell true
+set UeMC=1,UeMCNrFreqRelProfile=1 userLabel n78C1
+set UeMC=1,UeMCNrFreqRelProfile=2 userLabel n78C2
+set UeMC=1,UeMCNrFreqRelProfile=3 userLabel n1C1
+set UeMC=1,UeMCNrFreqRelProfile=4 userLabel n3C1
+set UeMC=1,UeMCNrFreqRelProfile=5 userLabel n28C1
+set UeMC=1,UeMCNrFreqRelProfile=6 userLabel n7C1
+
+mr NRFreqRelation 
+ma NRFreqRelation NRFreqRelation=
+for $mo in NRFreqRelation
+	$nrfreqrelation = rdn($mo)
+	if $nrfreqrelation = NRFreqRelation=156510
+		set $nrfreqrelation ueMCNrFreqRelProfileRef UeMC=1,UeMCNrFreqRelProfile=5
+	else if $nrfreqrelation = NRFreqRelation=374190
+		set $nrfreqrelation ueMCNrFreqRelProfileRef UeMC=1,UeMCNrFreqRelProfile=4
+	else if $nrfreqrelation = NRFreqRelation=431810
+		set $nrfreqrelation ueMCNrFreqRelProfileRef UeMC=1,UeMCNrFreqRelProfile=3	
+	else if $nrfreqrelation = NRFreqRelation=636960
+		set $nrfreqrelation ueMCNrFreqRelProfileRef UeMC=1,UeMCNrFreqRelProfile=1
+	else if $nrfreqrelation = NRFreqRelation=646272
+		set $nrfreqrelation ueMCNrFreqRelProfileRef UeMC=1,UeMCNrFreqRelProfile=2
+	else if $nrfreqrelation = NRFreqRelation=529490
+		set $nrfreqrelation ueMCNrFreqRelProfileRef UeMC=1,UeMCNrFreqRelProfile=6
+	fi
+done
+
+#NRFreqRelation=636960 UeMCNrFreqRelProfile=1 #n781 connModePrioPSCell 7
+#NRFreqRelation=646272 UeMCNrFreqRelProfile=2 #n782 connModePrioPSCell 7
+#NRFreqRelation=431810 UeMCNrFreqRelProfile=3 #n011 connModePrioPSCell 1
+#NRFreqRelation=374190 UeMCNrFreqRelProfile=4 #n031 connModePrioPSCell 4
+#NRFreqRelation=156510 UeMCNrFreqRelProfile=5 #n281 connModePrioPSCell 2
+#NRFreqRelation=529490 UeMCNrFreqRelProfile=6 #n071 connModePrioPSCell 5
+
+set UeMC=1,UeMCNrFreqRelProfile=1,UeMCNrFreqRelProfileUeCfg=Base connModePrioPSCell 7
+set UeMC=1,UeMCNrFreqRelProfile=2,UeMCNrFreqRelProfileUeCfg=Base connModePrioPSCell 7
+set UeMC=1,UeMCNrFreqRelProfile=3,UeMCNrFreqRelProfileUeCfg=Base connModePrioPSCell 1
+set UeMC=1,UeMCNrFreqRelProfile=4,UeMCNrFreqRelProfileUeCfg=Base connModePrioPSCell 4
+set UeMC=1,UeMCNrFreqRelProfile=5,UeMCNrFreqRelProfileUeCfg=Base connModePrioPSCell 2
+set UeMC=1,UeMCNrFreqRelProfile=6,UeMCNrFreqRelProfileUeCfg=Base connModePrioPSCell 5
+
+#-------------------------- UeMCEUtranFreqRelProfile settings ----------------------------------------------
+//UE mobility control attributes used on E-UTRAN frequency relation level.
+#GNBCUCPFunction
+#	UeMC
+#	UeMCEUtranFreqRelProfile
+#	UeMCEUtranFreqRelProfileUeCfg
+
+#cr $gnbcucpfunctionldn,UeMC=1,UeMCEUtranFreqRelProfile=Default #autocreated
+#cr $gnbcucpfunctionldn,UeMC=1,UeMCEUtranFreqRelProfile=Default,UeMCEUtranFreqRelProfileUeCfg=Base #autocreated
+
+pr NRCellCU.*,EUtranFreqRelation
+if $nr_of_mos > 0
+	set NRCellCU.*,EUtranFreqRelation ueMCEUtranFreqRelProfileRef UeMC=1,UeMCEUtranFreqRelProfile=Default
+fi
+
+set $gnbcucpfunctionldn,UeMC=1,UeMCEUtranFreqRelProfile=Default,UeMCEUtranFreqRelProfileUeCfg=Base blindRwrAllowed false
+set $gnbcucpfunctionldn,UeMC=1,UeMCEUtranFreqRelProfile=Default,UeMCEUtranFreqRelProfileUeCfg=Base connModeAllowedPCell false
+set $gnbcucpfunctionldn,UeMC=1,UeMCEUtranFreqRelProfile=Default,UeMCEUtranFreqRelProfileUeCfg=Base connModePrioPCell 7
+
+#-------------------------- IntraFreqMC (Intra-frequency mobility control) function----------------------------------------------
+#GNBCUCPFunction
+#IntraFreqMC
+#	IntraFreqMCCellProfile [0..]
+#	IntraFreqMCFreqRelProfile [0..]
+
+#cr $gnbcucpfunctionldn,IntraFreqMC=1 #autocreated
+#set IntraFreqMC=1 intraFreqMCCellProfileUsage 1
+#No such parameter in 22Q1 MOM
+
+#-------------------------- IntraFreqMCCellProfile settings -----------------------
+//Intra-frequency mobility control, cell configuration profile. Applies to UEs that use cell as SpCell. Attributes are used on cell level.
+
+pr IntraFreqMCCellProfile=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,IntraFreqMC=1,IntraFreqMCCellProfile=1
+	wait 1
+	ldc IntraFreqMCCellProfile=1
+fi
+set IntraFreqMC=1,IntraFreqMCCellProfile=1 rsrpSCellCoverage threshold=-138,hysteresis=40
+set IntraFreqMC=1,IntraFreqMCCellProfile=1,IntraFreqMCCellProfileUeCfg=Base rsrpBetterSpCell timeToTrigger=320,offset=20
+set IntraFreqMC=1,IntraFreqMCCellProfile=1,IntraFreqMCCellProfileUeCfg=Base betterSpCellTriggerQuantity 0
+set IntraFreqMC=1,IntraFreqMCCellProfile=1,IntraFreqMCCellProfileUeCfg=Base endcActionEvalFail 0
+set IntraFreqMC=1,IntraFreqMCCellProfile=1,IntraFreqMCCellProfileUeCfg=Base rsrpBetterSpCell hysteresis=10,offset=30,timeToTrigger=640
+set NRCellCU intraFreqMCCellProfileRef $gnbcucpfunctionldn,IntraFreqMC=1,IntraFreqMCCellProfile=1
+
+#--------------------------IntraFreqMCFreqRelProfile settings --------------------------- 
+//Intra-frequency mobility control cell configuration profile. Applies to UEs that use cell as SpCell. Attributes are used on NR frequency relation level.
+
+pr IntraFreqMCFreqRelProfile=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,IntraFreqMC=1,IntraFreqMCFreqRelProfile=1
+	wait 1
+	ldc IntraFreqMCFreqRelProfile=1
+fi
+set IntraFreqMC=1,IntraFreqMCFreqRelProfile=1,IntraFreqMCFreqRelProfileUeCfg=Base rsrpSCellCoverageThrOffset 0
+set IntraFreqMC=1,IntraFreqMCFreqRelProfile=1,IntraFreqMCFreqRelProfileUeCfg=Base rsrqSCellCoverageThrOffset 0
+set NRCellCU.*,NRFreqRelation intraFreqMCFreqRelProfileRef $gnbcucpfunctionldn,IntraFreqMC=1,IntraFreqMCFreqRelProfile=1
+
+#-------------------------- EmCall (Emergency call) function----------------------------------------------
+
+pr EmCall=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,EmCall=1
+fi
+
+#-------------------------- Mcfb (mobility control fallback) function ----------------------------------------------
+#GNBCUCPFunction
+#	Mcfb
+#	McfbCellProfile [0..]
+
+#cr $gnbcucpfunctionldn,Mcfb=1 #autocreated
+set Mcfb=1 mcfbCellProfileEnabled false
+set Mcfb=1 voiceEpsFbPossible false
+
+#-----------------------McfbCellProfile settings -------------------------------------------
+//Profile of mobility control fallback for cell. Applies to UEs which use the cell as PCell. Attributes are used on cell level.
+
+pr McfbCellProfile=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1
+fi
+set Mcfb=1,McfbCellProfile=1 epsFbAtSessionSetup 0
+set Mcfb=1,McfbCellProfile=1 ueConfGroupType 0
+wait 1
+ldc McfbCellProfile=1
+
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrpCellCandidate hysteresis=10,threshold=-140,timeToTrigger=40
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrpCriticalCoverage hysteresis=10,threshold=-156,timeToTrigger=160,timeToTriggerA1=-1
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrqCellCandidate hysteresis=10,threshold=-195,timeToTrigger=40
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrpCriticalCoverage rsrqCriticalCoverage hysteresis=10,threshold=-435,timeToTrigger=160,timeToTriggerA1=-1
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFallbackOperation 2
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFallbackOperationEm 1
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFbTargetSearchTimer 500
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base prefUeGroupList
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rejectVoiceIncHoAtEpsFb false
+set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base triggerQuantity 0
+
+#--------------------------UeCA (UE Carrier Aggregation) function -----------------------------
+
+#GNBDUFunction
+#UeCA
+#	CaSCellHandling [0..4]
+
+#--------------------------CaSCellHandling settings -----------------------------
+
+pr CaSCellHandling=1
+if $nr_of_mos = 0
+	cr $gnbdufunctionldn,UeCA=1,CaSCellHandling=1
+fi
+wait 1
+ldc CaSCellHandling=1
+
+set UeCA=1,CaSCellHandling=Default,CaSCellHandlingUeCfg=Base sCellActDeactDataThres -1
+set UeCA=1,CaSCellHandling=Default,CaSCellHandlingUeCfg=Base sCellActDeactDataThresHyst 90
+set UeCA=1,CaSCellHandling=Default,CaSCellHandlingUeCfg=Base sCellActProhibitTimer 10
+set UeCA=1,CaSCellHandling=Default,CaSCellHandlingUeCfg=Base sCellDeactDelayTimer 50
+set UeCA=1,CaSCellHandling=Default,CaSCellHandlingUeCfg=Base sCellDeactProhibitTimer 200
+
+#-----------------------DrxProfile settings -------------------------------------------
+//DRX profile used for current UE.
+//MO instance DrxProfile=Default is created automatically when parent MO is created, unless created manually in same transaction as parent MO.
+//DRX profile is enabled for each NRCellDU MO by setting NRCellDU::drxProfileEnabled attribute.
+
+#GNBDUFunction
+#UeCC
+#	DrxProfile [0..4]
+#	LinkAdaptation [0..1]
+#	Prescheduling [0..1]
+#	SchedulingProfile [0..32]
+#	UeBb [0..1]
+
+#cr $gnbdufunctionldn,UeCC=1,DrxProfile=Default #autocreated
+
+set UeCC=1,DrxProfile=Default,DrxProfileUeCfg=Base drxEnabled true
+set UeCC=1,DrxProfile=Default,DrxProfileUeCfg=Base drxInactivityTimer 7
+set UeCC=1,DrxProfile=Default,DrxProfileUeCfg=Base drxLongCycle 8
+set UeCC=1,DrxProfile=Default,DrxProfileUeCfg=Base drxOnDurationTimer 38
+set NRCellDU drxProfileRef 
+
+#----------------------UeCC (UE connection control) CU function -------------------------------------------
+#GNBCUCPFunction
+#UeCC
+#	InactivityProfile [0..1]
+#	Rrc [0..1]
+#	RrcInactiveProfile [0..1]
+
+#-----------------------InactivityProfile settings--------------------------
+
+#cr $gnbcucpfunctionldn,UeCC=1,InactivityProfile=Default #autocreated
+#cr $gnbcucpfunctionldn,UeCC=1,InactivityProfile=Default,InactivityProfileUeCfg=Base #autocreated
+set $gnbcucpfunctionldn,UeCC=1,InactivityProfile=Default,InactivityProfileUeCfg=Base tInactivityTimer 10
+set $gnbcucpfunctionldn,UeCC=1,InactivityProfile=Default,InactivityProfileUeCfg=Base tInactivityTimerEndcSn 5
+set $gnbcucpfunctionldn,UeCC=1,InactivityProfile=Default,InactivityProfileUeCfg=Base tInactivityTimerNrdcSn 10
+
+#-----------------------RrcInactiveProfile settings------------- 
+//RRC inactive profile used for current UE.
+
+#---------------------RrcInactiveProfile-----------------
+#No settings
+#---------------------RrcInactiveProfileUeCfg-----------------
+
+set UeCC=1,RrcInactiveProfile=Default,RrcInactiveProfileUeCfg=Base periodicRnaUpdateCount 1
+set UeCC=1,RrcInactiveProfile=Default,RrcInactiveProfileUeCfg=Base  periodicRnaUpdateTimer 60
+set UeCC=1,RrcInactiveProfile=Default,RrcInactiveProfileUeCfg=Base rrcInactiveStateSupport true
+set UeCC=1,RrcInactiveProfile=Default,RrcInactiveProfileUeCfg=Base rrcResumeMsgSizeRed 2,3
+
+#-----------------------NRDC control CUCPFunction--------------------------
+//NR-NR Dual Connectivity control for PCell in Master Node. Applies to UEs which use the cell as PCell in Master Node. Attributes are used on cell level.
+#GNBCUCPFunction
+#NrdcControl
+#		NrdcMnCellProfile
+
+#------------------NrdcMnCellProfile----------------
+#cr $gnbcucpfunctionldn,NrdcControl=1,NrdcMnCellProfile=Default #autocreated
+#cr $gnbcucpfunctionldn,NrdcControl=1,NrdcMnCellProfile=Default,NrdcMnCellProfileUeCfg=Base #autocreated
+set NrdcControl=1,NrdcMnCellProfile=Default,NrdcMnCellProfileUeCfg=Base nrdcEnabled false
+set NrdcControl=1,NrdcMnCellProfile=Default,NrdcMnCellProfileUeCfg=Base nrdcMeasRestartTime 15000
+set NrdcControl=1,NrdcMnCellProfile=Default,NrdcMnCellProfileUeCfg=Base nrdcMeasTime 2000
+set NrdcControl=1,NrdcMnCellProfile=Default,NrdcMnCellProfileUeCfg=Base  rsrpPSCellCandidate hysteresis=10,threshold=-156,timeToTrigger=0
+
+#----------------------UeCC (UE connection control) DUfunction -------------------------------------------
+#GNBDUFunction
+#UeCC
+#	UeBb
+#	UeBbProfile 
+	
+#-----------------------UeBbProfile---------------------
+#UE Baseband profile used for current UE.
+#No settings
+
+#-----------------------UeBbProfileUeCfg-------------------
+#cr $gnbdufunctionldn,UeCC=1,UeBb=1,UeBbProfile=Default #autocreated
+#cr $gnbdufunctionldn,UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base #autocreated
+set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base linkAdaptationUeCfgRef
+set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base prefUeGroupList
+set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base preschedulingUeCfgRef
+set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base ueGroupList
+set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base userLabel
+set NRCellDU ueBbProfileRef UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base
+
+#-----------------------SchedulingProfile-------------------
+#Scheduling profile used for current connection.
+
+pr SchedulingProfile=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,UeCC=1,SchedulingProfile=1
+fi
+set UeCC=1,SchedulingProfile=1 relativePriority 1
+set UeCC=1,SchedulingProfile=1 relativePriorityMode 0
+
+#--------------------------UeGroupSelection settings CUCP Function ------------------
+#Container class for UeGroupSelectionProfiles and PrefUeGroupSelectionProfiles.
+
+#GNBCUCPFunction
+#			UeGroupSelection
+#			UeGroupSelectionProfile
+
+pr UeGroupSelection=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,UeGroupSelection=1
+fi
+pr UeGroupSelection=1,UeGroupSelectionProfile=0
+if $nr_of_mos = 0
+	crn  $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=0
+	ueGroupId 0
+	ueGroupPriority 0
+end
+fi
+
+set $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=0 selectionProbability 100
+
+#------------------------PmUeIntraFreqCellProfile--------------------------
+#Profile for PM intra-frequency UE measurements.
+#GNBCUCPFunction
+#			PmUeMeas
+#			PmUeIntraFreqCellProfile
+
+pr PmUemeas=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,PmUemeas=1
+fi
+pr PmUemeas=1,PmUeIntraFreqCellProfile=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,PmUemeas=1,PmUeIntraFreqCellProfile=1
+fi
+
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 maxReportCells 4
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 pmUeReportType 0
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 reportAmount 1
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 reportConfigA2Rsrp hysteresis=10,threshold=-156,timeToTrigger=160,timeToTriggerA1=-1
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 reportConfigA2Rsrq hysteresis=10,threshold=-435,timeToTrigger=160,timeToTriggerA1=-1
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 reportConfigA3Rsrp hysteresis=10,offset=30,timeToTrigger=640
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 reportConfigA3Rsrq hysteresis=10,offset=30,timeToTrigger=640
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 reportInterval 10
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 reportQuantityCell rsrp=true,rsrq=true,sinr=false
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 triggerQuantity 0
+set PmUemeas=1,PmUeIntraFreqCellProfile=1 ueSelectionRatio 100
+
+set NRCellCU=  pmUeIntraFreqCellProfileRef PmUemeas=1,PmUeIntraFreqCellProfile=1
+
+#------------------------PmUeIntraFreqCellProfile--------------------------
+#A set of preference UE group selection criteria used to define a subset of all UEs.
+
+#GNBCUCPFunction
+#		UeGroupSelection
+#		PrefUeGroupSelectionProfile
+#
+
+pr UeGroupSelection=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,UeGroupSelection=1
+fi
+pr $gnbcucpfunctionldn,UeGroupSelection=1,PrefUeGroupSelectionProfile=1
+if $nr_of_mos = 0
+	crn $gnbcucpfunctionldn,UeGroupSelection=1,PrefUeGroupSelectionProfile=1
+	prefUeGroupId 1
+	prefUeGroupPriority 1
+	selectionCriteria
+	userLabel
+	end
+fi
+
+#*****************************************************#
+#     	 NR mobility specific settings end here       #
+#*****************************************************#
+
+nonew
