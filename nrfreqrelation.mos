@@ -268,6 +268,7 @@ func measGapPattern
 endfunc
 
 $i = 0
+unset $nr_of_mos
 mr eutrancellfdd
 ma eutrancellfdd ^EUtranCellFDD=
 if $nr_of_mos > 0
@@ -307,7 +308,7 @@ fi
 
 pr Mcpc=1,McpcPCellProfile=1
 if $AMF > 0 && $nr_of_mos = 0
-	cr GNBCUCPFunction=gNBId$gNBId,Mcpc=1,McpcPCellProfile=1
+	cr $gnbcucpfunctionldn,Mcpc=1,McpcPCellProfile=1
 	ldc McpcPCellProfile=1
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base lowHighFreqPrioClassification 7
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base mcpcQuantityList 0
@@ -315,7 +316,7 @@ if $AMF > 0 && $nr_of_mos = 0
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=10,threshold1=-156,threshold2=-156,timeToTrigger=640
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpCandidateB2 hysteresis=10,threshold1=-156,threshold2EUtra=-140,timeToTrigger=640
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpCritical hysteresis=10,threshold=-156,timeToTrigger=160,timeToTriggerA1=-1
-	set McpcPCellProfile=1,McpcPCellProfileUeCfg=BasersrpCriticalEnabled false
+	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpCriticalEnabled false
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpSearchTimeRestriction -1
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base rsrpSearchZone hysteresis=10,threshold=-156,timeToTrigger=160,timeToTriggerA1=-1
 	set McpcPCellProfile=1,McpcPCellProfileUeCfg=Base ueConfGroupList
@@ -421,7 +422,7 @@ set TrafficSteering=1,TrStSaCellProfile=Default,TrStSaCellProfileUeCfg=Base user
 #	NRFreqRelation
 
 #No settings 
-set NRCellCU.*,NRFreqRelation TrStSaNrFreqRelProfileref TrafficSteering=1,TrStSaNrFreqRelProfile=Default
+set NRCellCU.*,NRFreqRelation TrStSaNrFreqRelProfileref
 
 #--------------------------TrStSaNrFreqRelProfileUeCfg-------------------------
 //Traffic steering function for PCell and SCells in NR Standalone, UE configuration group.Applicable to UEs that use this cell as PCell in NR Standalone. Attributes are used on NR frequency relation level.
@@ -622,7 +623,8 @@ fi
 #	McfbCellProfile [0..]
 
 #cr $gnbcucpfunctionldn,Mcfb=1 #autocreated
-set Mcfb=1 mcfbCellProfileEnabled false
+#set Mcfb=1 mcfbCellProfileEnabled false
+#No such attribute in 22Q1 MOM
 set Mcfb=1 voiceEpsFbPossible false
 
 #-----------------------McfbCellProfile settings -------------------------------------------
@@ -640,8 +642,13 @@ ldc McfbCellProfile=1
 set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrpCellCandidate hysteresis=10,threshold=-140,timeToTrigger=40
 set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrpCriticalCoverage hysteresis=10,threshold=-156,timeToTrigger=160,timeToTriggerA1=-1
 set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrqCellCandidate hysteresis=10,threshold=-195,timeToTrigger=40
-set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base rsrpCriticalCoverage rsrqCriticalCoverage hysteresis=10,threshold=-435,timeToTrigger=160,timeToTriggerA1=-1
-set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFallbackOperation 2
+
+if $AMF = 0
+	set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFallbackOperation 2
+else if $AMF = 1
+	set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFallbackOperation 0
+fi
+
 set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFallbackOperationEm 1
 set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base epsFbTargetSearchTimer 500
 set $gnbcucpfunctionldn,Mcfb=1,McfbCellProfile=1,McfbCellProfileUeCfg=Base prefUeGroupList
@@ -749,17 +756,17 @@ set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base prefUeGroupList
 set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base preschedulingUeCfgRef
 set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base ueGroupList
 set UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base userLabel
-set NRCellDU ueBbProfileRef UeCC=1,UeBb=1,UeBbProfile=Default,UeBbProfileUeCfg=Base
+set NRCellDU ueBbProfileRef $gnbdufunctionldn,UeCC=1,UeBb=1,UeBbProfile=Default
 
 #-----------------------SchedulingProfile-------------------
 #Scheduling profile used for current connection.
 
 pr SchedulingProfile=1
 if $nr_of_mos = 0
-	cr $gnbcucpfunctionldn,UeCC=1,SchedulingProfile=1
+	cr $gnbdufunctionldn,UeCC=1,SchedulingProfile=1
 fi
-set UeCC=1,SchedulingProfile=1 relativePriority 1
-set UeCC=1,SchedulingProfile=1 relativePriorityMode 0
+set SchedulingProfile=1 relativePriority 1
+set SchedulingProfile=1 relativePriorityMode 0
 
 #--------------------------UeGroupSelection settings CUCP Function ------------------
 #Container class for UeGroupSelectionProfiles and PrefUeGroupSelectionProfiles.
@@ -772,15 +779,46 @@ pr UeGroupSelection=1
 if $nr_of_mos = 0
 	cr $gnbcucpfunctionldn,UeGroupSelection=1
 fi
-pr UeGroupSelection=1,UeGroupSelectionProfile=0
+pr UeGroupSelectionProfile=UeGrp5qi9
 if $nr_of_mos = 0
-	crn  $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=0
-	ueGroupId 0
-	ueGroupPriority 0
+	crn  $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=UeGrp5qi9
+	selectionCriteria 5qi==9
+	selectionProbability 100
+	ueGroupId 9
+	ueGroupPriority 40
 end
 fi
 
-set $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=0 selectionProbability 100
+pr UeGroupSelectionProfile=UeGrp5qi5
+if $nr_of_mos = 0
+	crn  $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=UeGrp5qi5
+	selectionCriteria 5qi==5
+	selectionProbability 100
+	ueGroupId 5
+	ueGroupPriority 100
+end
+fi
+
+pr UeGroupSelectionProfile=UeGrp5QI8
+if $nr_of_mos = 0
+	crn  $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=UeGrp5QI8
+	selectionCriteria 5qi==8
+	selectionProbability 100
+	ueGroupId 8
+	ueGroupPriority 50
+end
+fi
+
+pr UeGroupSelectionProfile=UeGrp5QI1
+if $nr_of_mos = 0
+	crn  $gnbcucpfunctionldn,UeGroupSelection=1,UeGroupSelectionProfile=UeGrp5QI1
+	selectionCriteria 5qi==1
+	selectionProbability 100
+	ueGroupId 1
+	ueGroupPriority 90
+end
+fi
+
 
 #------------------------PmUeIntraFreqCellProfile--------------------------
 #Profile for PM intra-frequency UE measurements.
@@ -811,7 +849,7 @@ set PmUemeas=1,PmUeIntraFreqCellProfile=1 ueSelectionRatio 100
 
 set NRCellCU=  pmUeIntraFreqCellProfileRef PmUemeas=1,PmUeIntraFreqCellProfile=1
 
-#------------------------PmUeIntraFreqCellProfile--------------------------
+#------------------------PrefUeGroupSelectionProfile--------------------------
 #A set of preference UE group selection criteria used to define a subset of all UEs.
 
 #GNBCUCPFunction
@@ -819,10 +857,6 @@ set NRCellCU=  pmUeIntraFreqCellProfileRef PmUemeas=1,PmUeIntraFreqCellProfile=1
 #		PrefUeGroupSelectionProfile
 #
 
-pr UeGroupSelection=1
-if $nr_of_mos = 0
-	cr $gnbcucpfunctionldn,UeGroupSelection=1
-fi
 pr $gnbcucpfunctionldn,UeGroupSelection=1,PrefUeGroupSelectionProfile=1
 if $nr_of_mos = 0
 	crn $gnbcucpfunctionldn,UeGroupSelection=1,PrefUeGroupSelectionProfile=1

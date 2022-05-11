@@ -1,7 +1,7 @@
-#This script includes special settings
 #This script adds Lrat.EUtranFreqRelations -based on existing EUtranFrequencies.
 #EUtranFrequencies must be defined before running this script!
 #There is no check regarding the parameter-set section, so runx (failsafe run) is recommended!
+#This script includes some special settings e.g. priority-settings -other than default.
 
 lt all
 unset all
@@ -28,6 +28,10 @@ $return = 0
 !echo '** The script has finished with the check! *********************' >> $tempdir/temp_nonew.txt
 !echo '****************************************************************' >> $tempdir/temp_nonew.txt
 
+set EUtranCellFDD=........,GeranFreqGroupRelation= cellReselectionPriority 1
+set EUtranCellFDD=........,GUtranFreqRelation= cellReselectionPriority -1
+set EUtranCellFDD=........,UtranFreqRelation= cellReselectionPriority 2
+
 pr ^EUtranCellFDD=
 if $nr_of_mos = 0
 	!cat  $tempdir/temp_error1.txt
@@ -51,7 +55,7 @@ if $nr_of_mos = 0
 fi
 
 mr EUtranFrequencygroup
-ma EUtranFrequencygroup ^EUtranFrequency=
+ma EUtranFrequencygroup ENodeBFunction=1,EUtraNetwork=1,EUtranFrequency=
 	for $mo in EUtranFrequencygroup
 		$j = $j + 1
 		$ldnEUtranFrequency[$j] = ldn($mo)
@@ -92,149 +96,161 @@ for $m = 1 to $i
 	add_all_EUtranFrequency_to_cell
 done
 
-#special settings start here
+set EUtranCellFDD=........,EUtranFreqRelation=1617 cellReselectionPriority 6
+set EUtranCellFDD=........,EUtranFreqRelation=1761 cellReselectionPriority 6
+set EUtranCellFDD=........,EUtranFreqRelation=1815 cellReselectionPriority 6
+set EUtranCellFDD=........,EUtranFreqRelation=1791  cellReselectionPriority 7
+set EUtranCellFDD=........,EUtranFreqRelation=38475  cellReselectionPriority 3
+set EUtranCellFDD=........,EUtranFreqRelation=522  cellReselectionPriority 6
+set EUtranCellFDD=........,EUtranFreqRelation=3350 cellReselectionPriority 6 
+set EUtranCellFDD=........,EUtranFreqRelation=3179 cellReselectionPriority 6 
+set EUtranCellFDD=........,EUtranFreqRelation=6225 cellReselectionPriority 4
 
-set EUtranFreqRelation=6225 cellReselectionPriority 4 
-set EUtranFreqRelation=3029 cellReselectionPriority 7 
-set EUtranFreqRelation=1617 cellReselectionPriority 6 
-set EUtranFreqRelation=1815 cellReselectionPriority 6 
-set EUtranFreqRelation=3179 cellReselectionPriority 6 
-set EUtranFreqRelation=3350 cellReselectionPriority 6 
-set EUtranFreqRelation=522  cellReselectionPriority 6 
-#set EUtranFreqRelation=1761 cellReselectionPriority 7 
-#set EUtranFreqRelation=1788 cellReselectionPriority 7 
+set EUtranCellFDD=........,GeranFreqGroupRelation= connectedModeMobilityPrio -1
+set EUtranCellFDD=........,GUtranFreqRelation= connectedModeMobilityPrio 6
+set EUtranCellFDD=........,UtranFreqRelation= connectedModeMobilityPrio -1
 
-set EUtranFreqRelation=6225 connectedModeMobilityPrio 4 
-set EUtranFreqRelation=1617 connectedModeMobilityPrio 6 
-set EUtranFreqRelation=1815 connectedModeMobilityPrio -1 
-set EUtranFreqRelation=522  connectedModeMobilityPrio -1 
-set EUtranFreqRelation=3350 connectedModeMobilityPrio -1 
-set EUtranFreqRelation=3179 connectedModeMobilityPrio -1 
-set EUtranFreqRelation=3029 connectedModeMobilityPrio -1 
-#set EUtranFreqRelation=1761 connectedModeMobilityPrio 7 
-#set EUtranFreqRelation=1788 connectedModeMobilityPrio 7 
+set EUtranCellFDD=........,EUtranFreqRelation=6225 connectedModeMobilityPrio 4 
+set EUtranCellFDD=........,EUtranFreqRelation=1617 connectedModeMobilityPrio 6
+set EUtranCellFDD=........,EUtranFreqRelation=1791 connectedModeMobilityPrio 5
+set EUtranCellFDD=........,EUtranFreqRelation=38475 connectedModeMobilityPrio 5
 
+set EUtranCellFDD=......11,EUtranFreqRelation=1761 connectedModeMobilityPrio -1 
+set EUtranCellFDD=......18,EUtranFreqRelation=1761 connectedModeMobilityPrio 6
+set EUtranCellFDD=......21,EUtranFreqRelation=1761 connectedModeMobilityPrio 6 
+set EUtranCellFDD=......26,EUtranFreqRelation=1761 connectedModeMobilityPrio -1 
+set EUtranCellFDD=......27,EUtranFreqRelation=1761 connectedModeMobilityPrio -1 
+
+set EUtranCellFDD=......11,EUtranFreqRelation=1815 connectedModeMobilityPrio -1 
+set EUtranCellFDD=......18,EUtranFreqRelation=1815 connectedModeMobilityPrio 6
 set EUtranCellFDD=......21,EUtranFreqRelation=1815 connectedModeMobilityPrio 6 
-set EUtranCellFDD=......18,EUtranFreqRelation=1815 connectedModeMobilityPrio 6 
-set EUtranCellFDD=......21,EUtranFreqRelation=522  connectedModeMobilityPrio 6 
-set EUtranCellFDD=......26,EUtranFreqRelation=522  connectedModeMobilityPrio 6 
-set EUtranCellFDD=......27,EUtranFreqRelation=522  connectedModeMobilityPrio 6 
-set EUtranCellFDD=......28,EUtranFreqRelation=522  connectedModeMobilityPrio 6 
+set EUtranCellFDD=......26,EUtranFreqRelation=1815 connectedModeMobilityPrio -1 
+set EUtranCellFDD=......27,EUtranFreqRelation=1815 connectedModeMobilityPrio -1 
+
+set EUtranCellFDD=......11,EUtranFreqRelation=522 connectedModeMobilityPrio -1 
+set EUtranCellFDD=......18,EUtranFreqRelation=522 connectedModeMobilityPrio -1
+set EUtranCellFDD=......21,EUtranFreqRelation=522 connectedModeMobilityPrio 6 
+set EUtranCellFDD=......26,EUtranFreqRelation=522 connectedModeMobilityPrio 6 
+set EUtranCellFDD=......27,EUtranFreqRelation=522 connectedModeMobilityPrio 6
+
 set EUtranCellFDD=......11,EUtranFreqRelation=3350 connectedModeMobilityPrio 6 
+set EUtranCellFDD=......18,EUtranFreqRelation=3350 connectedModeMobilityPrio -1
+set EUtranCellFDD=......21,EUtranFreqRelation=3350 connectedModeMobilityPrio -1 
 set EUtranCellFDD=......26,EUtranFreqRelation=3350 connectedModeMobilityPrio 6 
 set EUtranCellFDD=......27,EUtranFreqRelation=3350 connectedModeMobilityPrio 6 
-set EUtranCellFDD=......28,EUtranFreqRelation=3350 connectedModeMobilityPrio 6 
 
 set EUtranCellFDD=......11,EUtranFreqRelation=3179 connectedModeMobilityPrio 6 
+set EUtranCellFDD=......18,EUtranFreqRelation=3179 connectedModeMobilityPrio -1
+set EUtranCellFDD=......21,EUtranFreqRelation=3179 connectedModeMobilityPrio -1 
+set EUtranCellFDD=......26,EUtranFreqRelation=3179 connectedModeMobilityPrio -1 
 set EUtranCellFDD=......27,EUtranFreqRelation=3179 connectedModeMobilityPrio 6 
-set EUtranCellFDD=......28,EUtranFreqRelation=3179 connectedModeMobilityPrio 6 
 
-set EUtranCellFDD=......11,EUtranFreqRelation=3029 connectedModeMobilityPrio 6 
-set EUtranCellFDD=......27,EUtranFreqRelation=3029 connectedModeMobilityPrio 6 
-set EUtranCellFDD=......28,EUtranFreqRelation=3029 connectedModeMobilityPrio 6 
+set EUtranCellFDD=........,EUtranFreqRelation=6225 caFreqPriority -1 
 
-set EUtranFreqRelation=6225 caFreqPriority -1 
-
-set EUtranCellFDD=......80,EUtranFreqRelation=1617 caFreqPriority 7 
 set EUtranCellFDD=......11,EUtranFreqRelation=1617 caFreqPriority 6 
 set EUtranCellFDD=......18,EUtranFreqRelation=1617 caFreqPriority 6 
 set EUtranCellFDD=......21,EUtranFreqRelation=1617 caFreqPriority 6 
 set EUtranCellFDD=......26,EUtranFreqRelation=1617 caFreqPriority 6 
 set EUtranCellFDD=......27,EUtranFreqRelation=1617 caFreqPriority 6 
-set EUtranCellFDD=......28,EUtranFreqRelation=1617 caFreqPriority 6 
 
-set EUtranCellFDD=......80,EUtranFreqRelation=1815 caFreqPriority 5 
+set EUtranCellFDD=......11,EUtranFreqRelation=1761 caFreqPriority 4 
+set EUtranCellFDD=......18,EUtranFreqRelation=1761 caFreqPriority 4 
+set EUtranCellFDD=......21,EUtranFreqRelation=1761 caFreqPriority 4 
+set EUtranCellFDD=......26,EUtranFreqRelation=1761 caFreqPriority 4 
+set EUtranCellFDD=......27,EUtranFreqRelation=1761 caFreqPriority 4 
+
 set EUtranCellFDD=......11,EUtranFreqRelation=1815 caFreqPriority 4 
 set EUtranCellFDD=......18,EUtranFreqRelation=1815 caFreqPriority 4 
 set EUtranCellFDD=......21,EUtranFreqRelation=1815 caFreqPriority 4 
 set EUtranCellFDD=......26,EUtranFreqRelation=1815 caFreqPriority 4 
 set EUtranCellFDD=......27,EUtranFreqRelation=1815 caFreqPriority 4 
-set EUtranCellFDD=......28,EUtranFreqRelation=1815 caFreqPriority 4 
 
-set EUtranCellFDD=......80,EUtranFreqRelation=522  caFreqPriority 5 
+set EUtranCellFDD=......11,EUtranFreqRelation=1791 caFreqPriority 4
+set EUtranCellFDD=......18,EUtranFreqRelation=1791 caFreqPriority 4
+set EUtranCellFDD=......21,EUtranFreqRelation=1791 caFreqPriority 4
+set EUtranCellFDD=......26,EUtranFreqRelation=1791 caFreqPriority 4
+set EUtranCellFDD=......27,EUtranFreqRelation=1791 caFreqPriority 4
+
+set EUtranCellFDD=......11,EUtranFreqRelation=38475 caFreqPriority 4 
+set EUtranCellFDD=......18,EUtranFreqRelation=38475 caFreqPriority 4 
+set EUtranCellFDD=......21,EUtranFreqRelation=38475 caFreqPriority 4 
+set EUtranCellFDD=......26,EUtranFreqRelation=38475 caFreqPriority 4 
+set EUtranCellFDD=......27,EUtranFreqRelation=38475 caFreqPriority 4 
+
 set EUtranCellFDD=......11,EUtranFreqRelation=522  caFreqPriority 4 
 set EUtranCellFDD=......18,EUtranFreqRelation=522  caFreqPriority 4 
 set EUtranCellFDD=......21,EUtranFreqRelation=522  caFreqPriority 4 
 set EUtranCellFDD=......26,EUtranFreqRelation=522  caFreqPriority 4 
 set EUtranCellFDD=......27,EUtranFreqRelation=522  caFreqPriority 4 
-set EUtranCellFDD=......28,EUtranFreqRelation=522  caFreqPriority 4 
 
-set EUtranCellFDD=......80,EUtranFreqRelation=3350 caFreqPriority 6 
 set EUtranCellFDD=......11,EUtranFreqRelation=3350 caFreqPriority 7 
 set EUtranCellFDD=......18,EUtranFreqRelation=3350 caFreqPriority 7 
 set EUtranCellFDD=......21,EUtranFreqRelation=3350 caFreqPriority 7 
 set EUtranCellFDD=......26,EUtranFreqRelation=3350 caFreqPriority 7 
 set EUtranCellFDD=......27,EUtranFreqRelation=3350 caFreqPriority 7 
-set EUtranCellFDD=......28,EUtranFreqRelation=3350 caFreqPriority 7 
 
-set EUtranCellFDD=......80,EUtranFreqRelation=3179 caFreqPriority 5 
 set EUtranCellFDD=......11,EUtranFreqRelation=3179 caFreqPriority 5 
 set EUtranCellFDD=......18,EUtranFreqRelation=3179 caFreqPriority 5 
 set EUtranCellFDD=......21,EUtranFreqRelation=3179 caFreqPriority 5 
 set EUtranCellFDD=......26,EUtranFreqRelation=3179 caFreqPriority 5 
 set EUtranCellFDD=......27,EUtranFreqRelation=3179 caFreqPriority 5 
-set EUtranCellFDD=......28,EUtranFreqRelation=3179 caFreqPriority 5 
 
-set EUtranCellFDD=......80,EUtranFreqRelation=3029 caFreqPriority 5 
-set EUtranCellFDD=......11,EUtranFreqRelation=3029 caFreqPriority 5 
-set EUtranCellFDD=......18,EUtranFreqRelation=3029 caFreqPriority 5 
-set EUtranCellFDD=......21,EUtranFreqRelation=3029 caFreqPriority 5 
-set EUtranCellFDD=......26,EUtranFreqRelation=3029 caFreqPriority 5 
-set EUtranCellFDD=......27,EUtranFreqRelation=3029 caFreqPriority 5 
-set EUtranCellFDD=......28,EUtranFreqRelation=3029 caFreqPriority 5 
+set EUtranCellFDD=........,EUtranFreqRelation=6225 endcHoFreqPriority -1
+set EUtranCellFDD=........,EUtranFreqRelation=3350 endcHoFreqPriority  7
+set EUtranCellFDD=........,EUtranFreqRelation=3179 endcHoFreqPriority  7
+set EUtranCellFDD=........,EUtranFreqRelation=522  endcHoFreqPriority  7
+set EUtranCellFDD=........,EUtranFreqRelation=1617 endcHoFreqPriority  7
+set EUtranCellFDD=........,EUtranFreqRelation=1815 endcHoFreqPriority -1
 
-set EUtranFreqRelation=6225          endcHoFreqPriority -1
-set EUtranFreqRelation=3350          endcHoFreqPriority  7
-set EUtranFreqRelation=3179          endcHoFreqPriority  7
-set EUtranFreqRelation=3029          endcHoFreqPriority  7
-set EUtranFreqRelation=522           endcHoFreqPriority  7
-set EUtranFreqRelation=1617          endcHoFreqPriority  7
-set EUtranFreqRelation=1815          endcHoFreqPriority -1
+set EUtranCellFDD=........,EUtranFreqRelation=6225 voiceprio -1 
 
-set EUtranFreqRelation=6225 voiceprio -1 
-
-set EUtranCellFDD=......80,EUtranFreqRelation=1815 voiceprio -1
 set EUtranCellFDD=......11,EUtranFreqRelation=1815 voiceprio -1
 set EUtranCellFDD=......18,EUtranFreqRelation=1815 voiceprio  6
 set EUtranCellFDD=......21,EUtranFreqRelation=1815 voiceprio  6
 set EUtranCellFDD=......26,EUtranFreqRelation=1815 voiceprio -1
 set EUtranCellFDD=......27,EUtranFreqRelation=1815 voiceprio -1
-set EUtranCellFDD=......28,EUtranFreqRelation=1815 voiceprio -1
 
-set EUtranCellFDD=......80,EUtranFreqRelation=522  voiceprio -1
 set EUtranCellFDD=......11,EUtranFreqRelation=522  voiceprio -1
 set EUtranCellFDD=......18,EUtranFreqRelation=522  voiceprio -1
 set EUtranCellFDD=......21,EUtranFreqRelation=522  voiceprio  6
 set EUtranCellFDD=......26,EUtranFreqRelation=522  voiceprio  6
 set EUtranCellFDD=......27,EUtranFreqRelation=522  voiceprio  6
-set EUtranCellFDD=......28,EUtranFreqRelation=522  voiceprio  6
 
-set EUtranCellFDD=......80,EUtranFreqRelation=3350 voiceprio -1
 set EUtranCellFDD=......11,EUtranFreqRelation=3350 voiceprio  6
 set EUtranCellFDD=......18,EUtranFreqRelation=3350 voiceprio -1
 set EUtranCellFDD=......21,EUtranFreqRelation=3350 voiceprio -1
 set EUtranCellFDD=......26,EUtranFreqRelation=3350 voiceprio  6
 set EUtranCellFDD=......27,EUtranFreqRelation=3350 voiceprio  6
-set EUtranCellFDD=......28,EUtranFreqRelation=3350 voiceprio  6
 
-set EUtranCellFDD=......80,EUtranFreqRelation=3179 voiceprio -1
 set EUtranCellFDD=......11,EUtranFreqRelation=3179 voiceprio  6
 set EUtranCellFDD=......18,EUtranFreqRelation=3179 voiceprio -1
 set EUtranCellFDD=......21,EUtranFreqRelation=3179 voiceprio -1
 set EUtranCellFDD=......26,EUtranFreqRelation=3179 voiceprio -1
 set EUtranCellFDD=......27,EUtranFreqRelation=3179 voiceprio  6
-set EUtranCellFDD=......28,EUtranFreqRelation=3179 voiceprio  6
 
-set EUtranCellFDD=......80,EUtranFreqRelation=3029 voiceprio -1
-set EUtranCellFDD=......11,EUtranFreqRelation=3029 voiceprio  6
-set EUtranCellFDD=......18,EUtranFreqRelation=3029 voiceprio -1
-set EUtranCellFDD=......21,EUtranFreqRelation=3029 voiceprio -1
-set EUtranCellFDD=......26,EUtranFreqRelation=3029 voiceprio -1
-set EUtranCellFDD=......27,EUtranFreqRelation=3029 voiceprio  6
-set EUtranCellFDD=......28,EUtranFreqRelation=3029 voiceprio  6
+set EUtranCellFDD=........,EUtranFreqRelation eutranFreqToQciProfileRelation qciProfileRef=ManagedElement=69012BB2,ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci8
 
-set EUtranFreqRelation eutranFreqToQciProfileRelation qciProfileRef=ManagedElement=69012BB2,ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci8
-
-#special settings end here
+pr EUtranCellFDD=......80
+if $nr_of_mos > 0
+	set EUtranCellFDD=......80,EUtranFreqRelation=1761 connectedModeMobilityPrio -1
+	set EUtranCellFDD=......80,EUtranFreqRelation=1815 connectedModeMobilityPrio -1
+	set EUtranCellFDD=......80,EUtranFreqRelation=522 connectedModeMobilityPrio -1
+	set EUtranCellFDD=......80,EUtranFreqRelation=3350 connectedModeMobilityPrio -1
+	set EUtranCellFDD=......80,EUtranFreqRelation=3179 connectedModeMobilityPrio -1
+	
+	set EUtranCellFDD=......80,EUtranFreqRelation=1815 voiceprio -1
+	set EUtranCellFDD=......80,EUtranFreqRelation=522  voiceprio -1
+	set EUtranCellFDD=......80,EUtranFreqRelation=3350 voiceprio -1
+	set EUtranCellFDD=......80,EUtranFreqRelation=3179 voiceprio -1
+	
+	set EUtranCellFDD=......80,EUtranFreqRelation=1617 caFreqPriority 7
+	set EUtranCellFDD=......80,EUtranFreqRelation=1761 caFreqPriority 5
+	set EUtranCellFDD=......80,EUtranFreqRelation=1815 caFreqPriority 5
+	set EUtranCellFDD=......80,EUtranFreqRelation=1791 caFreqPriority 4
+	set EUtranCellFDD=......80,EUtranFreqRelation=38475 caFreqPriority 4
+	set EUtranCellFDD=......80,EUtranFreqRelation=522  caFreqPriority 5
+	set EUtranCellFDD=......80,EUtranFreqRelation=3350 caFreqPriority 6
+	set EUtranCellFDD=......80,EUtranFreqRelation=3179 caFreqPriority 5
+fi
 
 nonew
