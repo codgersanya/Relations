@@ -96,25 +96,31 @@ for $m = 1 to $i
 	add_all_EUtranFrequency_to_cell
 done
 
+set ENodeBFunction=1,EUtranCellFDD= ttiBundlingSwitchThres 150
+set ENodeBFunction=1,EUtranCellFDD= ttiBundlingSwitchThresHyst 40
+
+
+set ENodeBFunction=1,EUtranCellFDD=......18	cellSubscriptionCapacity 35000
+set ENodeBFunction=1,EUtranCellFDD=......11 cellSubscriptionCapacity 35000
+set ENodeBFunction=1,EUtranCellFDD=......21 cellSubscriptionCapacity 25000
+set ENodeBFunction=1,EUtranCellFDD=......26 cellSubscriptionCapacity 35000
 set ENodeBFunction=1,EUtranCellFDD=......27 cellSubscriptionCapacity 35000
+set ENodeBFunction=1,EUtranCellFDD=......80 cellSubscriptionCapacity 5000
 
 set ENodeBFunction=1,EUtranCellFDD= ulHarqVolteBlerTarget 2
 set ENodeBFunction=1,EUtranCellFDD= cellCapMinMaxWriProt TRUE
 set ENodeBFunction=1,EUtranCellFDD= iflbAbEnabled TRUE
+set ENodeBFunction=1,EUtranCellFDD= otdoaSuplActive FALSE
+set ENodeBFunction=1,EUtranCellFDD= prsConfigIndex -1
 
-set ENodeBFunction=1,EUtranCellFDD=......18 cellCapMaxCellSubCap 25000
-set ENodeBFunction=1,EUtranCellFDD=......11 cellCapMaxCellSubCap 45000
-set ENodeBFunction=1,EUtranCellFDD=......21 cellCapMaxCellSubCap 35000
-set ENodeBFunction=1,EUtranCellFDD=......26 cellCapMaxCellSubCap 45000
-set ENodeBFunction=1,EUtranCellFDD=......27 cellCapMaxCellSubCap 45000
-set ENodeBFunction=1,EUtranCellFDD=......80 cellCapMaxCellSubCap 8000
-
-set ENodeBFunction=1,EUtranCellFDD=......18 cellCapMaxCellSubCap 25000
-set ENodeBFunction=1,EUtranCellFDD=......11 cellCapMaxCellSubCap 25000
-set ENodeBFunction=1,EUtranCellFDD=......21 cellCapMaxCellSubCap 20000
-set ENodeBFunction=1,EUtranCellFDD=......26 cellCapMaxCellSubCap 25000
-set ENodeBFunction=1,EUtranCellFDD=......27 cellCapMaxCellSubCap 25000
-set ENodeBFunction=1,EUtranCellFDD=......80 cellCapMaxCellSubCap 4000
+gs-
+setm ENodeBFunction=1,EUtranCellFDD=......18 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
+setm ENodeBFunction=1,EUtranCellFDD=......11 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
+setm ENodeBFunction=1,EUtranCellFDD=......21 cellCapMinCellSubCap 20000 cellCapMaxCellSubCap 35000
+setm ENodeBFunction=1,EUtranCellFDD=......26 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
+setm ENodeBFunction=1,EUtranCellFDD=......27 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
+setm ENodeBFunction=1,EUtranCellFDD=......80 cellCapMinCellSubCap 4000  cellCapMaxCellSubCap 8000
+gs+
 	
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=1617 cellReselectionPriority 6
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=1761 cellReselectionPriority 6
@@ -341,7 +347,7 @@ set SystemFunctions=1,Lm=1,FeatureState=CXC4011944 featureState 0
 ## Enhanced Dynamic UE Admission Control for Privileged Access    
 set SystemFunctions=1,Lm=1,FeatureState=CXC4012490 featureState 0    
 
-set FreqBandData= vswrSupervisionActive TRUE
+set FreqBandData= vswrSupervisionActive FALSE
 set FreqBandData= vswrSupervisionSensitivity 75
 
 set UeMeasControl=1,ReportConfigEUtraInterFreqLb=1 a5Threshold2Rsrp -110

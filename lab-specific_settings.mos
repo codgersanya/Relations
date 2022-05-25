@@ -1,0 +1,9 @@
+lt all
+confb+
+set . isRemoveAllowed false 
+set AnrFunction=1  cellRelHoAttRateThreshold 0
+set . removeNrelTime 1000
+set ENodeBFunction=1,CarrierAggregationFunction=1 endccapolicy 1
+set UeMeasControl=1 maxMeasB1Endc 8
+set UeMeasControl=1 maxMeasNR 8
+set FreqBandData= vswrSupervisionActive FALSE

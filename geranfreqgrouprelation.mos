@@ -105,7 +105,7 @@ for $m = 1 to $i
 	add_GeranFreqGroup_to_cell
 done
 
-#specific settings starts here
+#BT-specific settings starts here
 set ^GeranFreqGroupRelation= qRxLevMin -105
 set ^GeranFreqGroupRelation= altCsfbTargetPrio 7
 set ^GeranFreqGroupRelation= altCsfbTargetPrioEc 7
@@ -114,6 +114,6 @@ set ^GeranFreqGroupRelation= connectedModeMobilityPrio -1
 set ^GeranFreqGroupRelation= csFallbackPrio 5
 set ^GeranFreqGroupRelation= csFallbackPrioEC 5
 set ^GeranFreqGroupRelation= voicePrio -1
-#specific settings ends here
+#BT-specific settings ends here
 
 nonew

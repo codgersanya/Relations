@@ -1,7 +1,7 @@
 #This script adds Lrat.UtranFreqRelations -based on existing EUtranFrequencies.
 #EUtranFrequencies must be defined before running this script!
 #The recent parameter master doesn't include any UtranFreqRelation-relevant settings -except qRxLevMin (-111dBm).
-#cellReselectionPriority is mandatory parameter and it is set to 3 via this script.
+#cellReselectionPriority is mandatory parameter and it is set to 3 on existing nodes.
 #Hence rest of the priority-settings will be set to the last known values:
 #UtranFreqRelation.altCsfbTargetPrio 5
 #UtranFreqRelation.altCsfbTargetPrioEc 5
@@ -79,7 +79,7 @@ func add_all_UtranFrequency_to_cell
 		if $nr_of_mos = 0
 			crn $ldnEUtranCellFDD[$m],UtranFreqRelation=$moidUtranFrequency[$k]
 			UtranFrequencyRef $ldnUtranFrequency[$k]
-			cellReselectionPriority 3
+			cellReselectionPriority 2
 			end
 			result
 		fi
@@ -100,7 +100,7 @@ for $m = 1 to $i
 	add_all_UtranFrequency_to_cell
 done
 
-#specific settings starts here
+#BT-specific settings starts here
 set ^UtranFreqRelation= qRxLevMin -111
 set ^UtranFreqRelation= altCsfbTargetPrio 5
 set ^UtranFreqRelation= altCsfbTargetPrioEc 5
@@ -108,6 +108,6 @@ set ^UtranFreqRelation= connectedModeMobilityPrio -1
 set ^UtranFreqRelation= csFallbackPrio 7
 set ^UtranFreqRelation= csFallbackPrioEC 7
 set ^UtranFreqRelation= voicePrio -1
-#specific settings ends here
+#BT-specific settings ends here
 
 nonew
