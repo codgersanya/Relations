@@ -24,5 +24,7 @@ To have all relations:
 	1. Run script for termpoint
 	2. Run script for freq-relation
 	3. Run script for cell relation
+	4. For parameter and MOM compliance to the PM, run unsorted_settings.mos
+	5. To avoid shooting yourself on foot, run lab-specific_settings.mos (this includes settings suitable for lab purposes -different from the PM).
 
 Note that although XN is not needed for NR-NSA mobility, it's useful for having and keeping neighbor information up-to-date on the nodes.
