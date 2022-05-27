@@ -1,0 +1,275 @@
+#This script creates EUtranCellRelations between existing EUtranCellFDDs and ExternalEUtranCellFDDs according to BT's naming req.
+#The name of the cellrelations will be [MCC][MNC]-[eNBId]-[cellid] of the target cell.
+#For relations to external cells, this is only true, if the external cell was created in the same format.
+#Note that X2 or ANR creates external cells with the same naming convention ([MCC][MNC]-[eNBId]-[cellid])
+#Existing EUtranFreqRelations is a prerequisite of this script. See: EUtranFreqRelation_BT.mos
+#It expects EUtranCells including "A", "B" or "C" in their names -as a hint to the host sector.
+#The script sets:
+#	EUtranCellRelation.scellcandidate to:
+#		0 (DISABLED) towards L800 (cell name ~80),
+#		1 (ALLOWED) on all other intracell-relations,
+#		2 (AUTO) on external cell relations.
+#	EUtranCellRelation.coverageIndicator to:
+#		1 (COVERS) on all intra-eNB-relations,
+#		0 (NONE) on all external-relations.
+#	EUtranCellRelation.scellprio to:
+#		7 if the source and target cell belongs to the same sector,
+#		6 if not.
+#Compliance to the PM is best effort.
+
+
+lt all
+unset all
+!rm -r $tempdir/*.*
+$return = 0
+$IntFreqRelationmissing = 0
+$ExtFreqRelationmissing = 0
+
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+!echo '** ERROR: There are no EUtranCellFDDs! **************' >> $tempdir/temp_error1.txt
+!echo '** Please define them before running this script! ***' >> $tempdir/temp_error1.txt
+!echo '** Script execution is stopped **********************' >> $tempdir/temp_error1.txt
+!echo '*****************************************************' >> $tempdir/temp_error1.txt
+
+!echo '*************************************************************' >> $tempdir/temp_warning1.txt
+!echo '** WARNING: There are no ExternalEUtranCellFDD! *************' >> $tempdir/temp_warning1.txt
+!echo '** No relation has been created to ExternalEUtranCells! *****' >> $tempdir/temp_warning1.txt
+!echo '*************************************************************' >> $tempdir/temp_warning1.txt
+
+!echo '*************************************************************' >> $tempdir/temp_error3.txt
+!echo '** ERROR: Not all the EUtranFrequencyRelations are defined **' >> $tempdir/temp_error3.txt
+!echo '** Please define all EUtranFrequencyRelations first! ********' >> $tempdir/temp_error3.txt
+!echo '** Script execution is stopped ******************************' >> $tempdir/temp_error3.txt
+!echo '*************************************************************' >> $tempdir/temp_error3.txt
+
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+!echo '** SUCCESS: The following relations have been added ***' >> $tempdir/temp_success.txt
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+!echo '*******************************************************' >> $tempdir/temp_success.txt
+
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+!echo '** NO CHANGE: All EutranCellRelations are added already. *******' >> $tempdir/temp_nonew.txt
+!echo '** The script has finished with the check! *********************' >> $tempdir/temp_nonew.txt
+!echo '****************************************************************' >> $tempdir/temp_nonew.txt
+
+get ENodeBFunction=1 eNBId > $enbid
+get ENodeBFunction=1 plmnid > $plmnid
+
+pr ^EUtranCellFDD=
+if $nr_of_mos = 0
+	!cat  $tempdir/temp_error1.txt
+	l+mmo $tempdir/dummy
+	$return = 1
+	return
+fi
+
+mr cellgroup
+ma cellgroup ^EUtranCellFDD=
+	for $mo in cellgroup
+		$i = $i + 1
+		$ldnEUtranCellFDD[$i] = ldn($mo)
+		$rdnEUtranCellFDD[$i] = rdn($mo)
+		$moidEUtranCellFDD[$i] = $rdnEUtranCellFDD[$i] -s .*=
+		get $moidEUtranCellFDD[$i] ^cellid > $cellid[$i]
+	done
+
+func intraresult
+	pr $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k]
+	if $nr_of_mos = 1
+		!echo $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] >> $tempdir/result.txt
+	fi
+endfunc
+
+func extresult
+	pr $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation=$moidexternalEUtranCellFDD[$n]
+	if $nr_of_mos = 1
+		!echo $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation=$moidexternalEUtranCellFDD[$n] >> $tempdir/result.txt
+	fi
+endfunc
+
+func scellprio
+		if $moidEUtranCellFDD[$j] ~ A
+			$sourcesect = a
+		else if $moidEUtranCellFDD[$j] ~ B
+			$sourcesect = b
+		else if $moidEUtranCellFDD[$j] ~ C
+			$sourcesect = c
+		fi
+		if $moidEUtranCellFDD[$k] ~ A
+			$targetsect = a
+		else if $moidEUtranCellFDD[$k] ~ B
+			$targetsect = b
+		else if $moidEUtranCellFDD[$k] ~ C
+			$targetsect = c
+		fi
+		if $sourcesect = $targetsect
+			set $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] sCellPriority 7
+		else 
+			set $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] sCellPriority 6
+		fi
+endfunc
+
+func scellcandidate
+	if $rdnEUtranCellFDD[$k] ~ 80
+		set $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] sCellCandidate 0
+	else
+		set $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] sCellCandidate 1
+	fi
+endfunc
+
+func relcreate
+	get $moidEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation neighborCellRef $rdnEUtranCellFDD[$k]
+	print $moidEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation neighborCellRef $rdnEUtranCellFDD[$k]
+	if $nr_of_mos = 0
+		crn $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k]
+		neighborCellRef $rdnEUtranCellFDD[$k]
+		coverageIndicator 1
+		end
+		intraresult
+		scellprio
+		scellcandidate
+	fi
+endfunc
+
+func IntFreqRelationcheck
+		get $moidEUtranCellFDD[$k] earfcndl > $earfcndl[$k]
+		pv $moidEUtranCellFDD[$j]
+		pv $earfcndl[$k]
+		pr $moidEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k]
+		if $nr_of_mos = 0
+			$IntFreqRelationmissing = 1
+		else
+			relcreate
+		fi
+endfunc
+
+func increase_index_of_target_EUtranCellFDD
+	$a = $i + 1
+	for $k = 1 to $i
+	if $k != $j && $k < $a
+		IntFreqRelationcheck
+	fi
+	if $IntFreqRelationmissing = 1
+		break
+	fi
+	done
+endfunc
+
+func decrease_index_of_target_EUtranCellFDD
+	for $k = $i to 1
+	if $k != $j && $k > 0
+		IntFreqRelationcheck
+	fi
+	if $IntFreqRelationmissing = 1
+		break
+	fi
+	done
+endfunc
+
+for $j = 1 to $i
+	increase_index_of_target_EUtranCellFDD
+	if $IntFreqRelationmissing = 1
+		break
+	fi
+done
+
+if $IntFreqRelationmissing = 1
+!cat $tempdir/temp_error3.txt
+return
+fi
+
+for $j = $i to 1
+	decrease_index_of_target_EUtranCellFDD
+	if $IntFreqRelationmissing = 1
+		break
+	fi
+done
+
+if $IntFreqRelationmissing = 1
+!cat $tempdir/temp_error3.txt
+return
+fi 
+
+func nonew
+	$linecontent = testfile($tempdir/result.txt)
+	if $nr_of_lines  = 0
+		!cat $tempdir/temp_nonew.txt
+	else
+		!cat $tempdir/temp_success.txt
+		!cat $tempdir/result.txt
+	fi
+endfunc
+
+pr ^ExternalEUtranCellFDD=
+if $nr_of_mos = 0
+	!cat $tempdir/temp_warning1.txt
+	l+mm $tempdir/dummy
+	nonew
+	l-
+	return
+fi
+
+mr externalEUtranCellFDDgroup
+ma externalEUtranCellFDDgroup ^ExternalEUtranCellFDD=
+	for $mo in externalEUtranCellFDDgroup
+		$m = $m + 1
+		$rdnexternalEUtranCellFDD[$m] = rdn($mo)
+		$ldnexternalEUtranCellFDD[$m] = ldn($mo)
+		$moidexternalEUtranCellFDD[$m] = $rdnexternalEUtranCellFDD[$m] -s .*=
+	done
+
+func extrelcreate
+	pv $ldnexternalEUtranCellFDD[$n]$
+	get $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation neighborCellRef
+	get $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation neighborCellRef $ldnexternalEUtranCellFDD[$n]$
+	if $nr_of_mos = 0
+		crn $ldnEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n],EUtranCellRelation=$moidexternalEUtranCellFDD[$n]
+		neighborCellRef $ldnexternalEUtranCellFDD[$n]
+		sCellCandidate 2
+		coverageindicator 0
+		end
+		extresult
+	fi
+endfunc
+
+func extfreqrelcheck
+	get $moidexternalEUtranCellFDD[$n]$ eutranFrequencyRef > $eutranFrequencyRef[$n]
+	$earfcndl[$n] =  $eutranFrequencyRef[$n] -s .*=
+	pr $moidEUtranCellFDD[$p],EUtranFreqRelation=$earfcndl[$n]
+	if $nr_of_mos = 0
+		$ExtFreqRelationmissing = 1
+	else
+		extrelcreate
+	fi
+endfunc
+
+func add_externalEUtranCellFDD_to_cell
+	for $n = 1 to $m
+		extfreqrelcheck
+		if $ExtFreqRelationmissing = 1
+			break
+		fi
+	done
+endfunc
+
+for $p = 1 to $i
+	add_externalEUtranCellFDD_to_cell
+	if $ExtFreqRelationmissing = 1
+		break
+	fi
+done
+
+### IFLB settings ###
+## EUtranCellRelation(intra eNodeB)_lbBnrAllowed = false
+## EUtranCellRelation(inter eNodeB)_lbBnrAllowed = true
+
+set EUtranCellRelation=23430 lbBnrAllowed true
+set EUtranCellRelation=23430-$enbid lbBnrAllowed false
+
+## Only for Intra eNB relations other than 6225 = ALLOWED
+set EUtranCellRelation=23430 loadBalancing 0
+set EUtranCellRelation=23430-$enbid loadBalancing 1
+set EUtranFreqRelation=6225,EUtranCellRelation=23430-$enbid loadBalancing 0
+
+nonew
