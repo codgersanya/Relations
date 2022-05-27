@@ -1,0 +1,330 @@
+#************************************************************************#
+#                                                                        #
+#     Additional settings -based on Fast-results and Parameter Master    #
+#                                                                        #
+#************************************************************************#
+
+#--------------------------ExternalGNodeBFunction--------------------------------------#
+set GUtraNetwork=1,ExternalGNodeBFunction= dirDataPathAvail false
+
+set ENodeBFunction=1,Paging=1 defaultPagingCycle 32
+set ENodeBFunction=1,AutoCellCapEstFunction=1 useEstimatedCellCap TRUE
+set ENodeBFunction=1 endcS1OverlapMode TRUE
+set ENodeBFunction=1 zzzTemporary81 1
+set ENodeBFunction=1 timeAndPhaseSynchCritical FALSE
+set ENodeBFunction=1,Paging=1 defaultPagingCycle 32
+set ENodeBFunction=1,CarrierAggregationFunction=1 endcCaPolicy NR_PREFERRED
+
+#--------------------------QciProfilePredefined------------------------------------------#
+
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci1 pdbOffset 100
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci1 qciSubscriptionQuanta 22
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci5 qciSubscriptionQuanta 1
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci6 qciSubscriptionQuanta 90
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci7 qciSubscriptionQuanta 90
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci8 qciSubscriptionQuanta 250
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci9 qciSubscriptionQuanta 150
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci65 qciSubscriptionQuanta 30
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci69 qciSubscriptionQuanta 2
+set ENodeBFunction=1,QciTable=default,QciProfilePredefined=qci70 qciSubscriptionQuanta 250
+
+#--------------------------SctpProfile----------------------------------------------------#
+set SctpProfile=Node_Internal_F1 assocMaxRtx 10
+set SctpProfile=Node_Internal_F1 heartbeatInterval 5000
+gs-
+setm SctpProfile=Node_Internal_F1 maxRto 3000 initRto 1000 minRto 1000
+gs+
+set SctpProfile=Node_Internal_F1 bundlingTimer 3
+
+#--------------------------SubscriberProfile--------------------#
+set ENodeBFunction=1,SubscriberGroupProfile=1 ulMcsUpperLimit 10
+del SubscriberProfileID=1,RATFreqPrio
+
+crn ENodeBFunction=1,SubscriberProfileID=1,RATFreqPrio=SPID85ToSPID104
+bandClassPrioListCDMA1xRtt
+bandClassPrioListCDMA2000
+freqGroupPrioListGERAN altCsfbTargetPrio=-1000,altCsfbTargetPrioEc=-1000,bandIndicatorGERAN=0,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1000,csFallbackPrio=-1000,csFallbackPrioEC=-1000,frequencyGroupId=1,voicePrio=-1000
+freqPrioListEUTRA arfcnValueEUtranDl=6225,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=1617,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1761,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=522,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3350,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3179,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1815,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1791,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=38475,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1
+freqPrioListUTRA altCsfbTargetPrio=-1000,altCsfbTargetPrioEc=-1000,arfcnValueUtranDl=10761,atoAllowed=false,cellReselectionPriority=3,connectedModeMobilityPrio=-1000,csFallbackPrio=-1000,csFallbackPrioEC=-1000,loadBalancingAllowed=false,voicePrio=-1000
+spidList 85,86,87,88,89,90,91,92,93,94,95,96,97,98,99,100,101,102,103,104
+t320 120
+ueCapPrioAllowed false
+userLabel SPID85-SPID104
+end
+
+crn ENodeBFunction=1,SubscriberProfileID=1,RATFreqPrio=SPID65ToSPID84
+bandClassPrioListCDMA1xRtt
+bandClassPrioListCDMA2000
+freqGroupPrioListGERAN altCsfbTargetPrio=-1000,altCsfbTargetPrioEc=-1000,bandIndicatorGERAN=0,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1000,csFallbackPrio=-1000,csFallbackPrioEC=-1000,frequencyGroupId=1,voicePrio=-1000
+freqPrioListEUTRA arfcnValueEUtranDl=6225,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=1617,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1761,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=522,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3350,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3179,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1815,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1791,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=38475,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1
+freqPrioListUTRA altCsfbTargetPrio=-1000,altCsfbTargetPrioEc=-1000,arfcnValueUtranDl=10761,atoAllowed=false,cellReselectionPriority=3,connectedModeMobilityPrio=-1000,csFallbackPrio=-1000,csFallbackPrioEC=-1000,loadBalancingAllowed=false,voicePrio=-1000
+spidList 65,66,67,68,69,70,71,72,73,74,75,76,77,78,79,80,81,82,83,84
+t320 120
+ueCapPrioAllowed false
+userLabel SPID65-SPID84
+end
+
+crn ENodeBFunction=1,SubscriberProfileID=1,RATFreqPrio=SPID125ToSPID127
+bandClassPrioListCDMA1xRtt
+bandClassPrioListCDMA2000
+freqGroupPrioListGERAN
+freqPrioListEUTRA arfcnValueEUtranDl=6225,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=1617,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1761,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=522,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3350,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3179,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1815,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1791,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=38475,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1
+freqPrioListUTRA altCsfbTargetPrio=-1000,altCsfbTargetPrioEc=-1000,arfcnValueUtranDl=10761,atoAllowed=false,cellReselectionPriority=3,connectedModeMobilityPrio=-1000,csFallbackPrio=-1000,csFallbackPrioEC=-1000,loadBalancingAllowed=false,voicePrio=-1000
+spidList 125,126,127
+t320 120
+ueCapPrioAllowed false
+userLabel SPID125-127
+end
+
+crn ENodeBFunction=1,SubscriberProfileID=1,RATFreqPrio=SPID105ToSPID124
+bandClassPrioListCDMA1xRtt
+bandClassPrioListCDMA2000
+freqGroupPrioListGERAN
+freqPrioListEUTRA arfcnValueEUtranDl=6225,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=1617,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1761,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=522,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3350,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=3179,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1815,arpPrio=0,atoAllowed=false,cellReselectionPriority=6,connectedModeMobilityPrio=-1000,loadBalancingAllowed=true,offloadAllowed=false,voicePrio=-1000;arfcnValueEUtranDl=1791,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1;arfcnValueEUtranDl=38475,arpPrio=0,atoAllowed=false,cellReselectionPriority=-1000,connectedModeMobilityPrio=-1,loadBalancingAllowed=false,offloadAllowed=false,voicePrio=-1
+freqPrioListUTRA altCsfbTargetPrio=-1000,altCsfbTargetPrioEc=-1000,arfcnValueUtranDl=10761,atoAllowed=false,cellReselectionPriority=3,connectedModeMobilityPrio=-1000,csFallbackPrio=-1000,csFallbackPrioEC=-1000,loadBalancingAllowed=false,voicePrio=-1000
+spidList 105,106,107,108,109,110,111,112,113,114,115,116,117,118,119,120,121,122,123,124
+t320 120
+ueCapPrioAllowed false
+userLabel SPID105-SPID124
+end
+
+#-----------------------------RadioEquipmentClockReference--------------------------------------#
+del RadioEquipmentClockReference
+
+crn Transport=1,Synchronization=1,RadioEquipmentClock=1,RadioEquipmentClockReference=GPS
+adminQualityLevel qualityLevelValueOptionI=2,qualityLevelValueOptionII=2,qualityLevelValueOptionIII=1
+administrativeState 1
+encapsulation Synchronization=1,TimeSyncIO=GPS
+holdOffTime 1000
+priority 2
+useQLFrom 1
+waitToRestoreTime 60
+end
+
+crn Transport=1,Synchronization=1,RadioEquipmentClock=1,RadioEquipmentClockReference=PTP
+adminQualityLevel qualityLevelValueOptionI=2,qualityLevelValueOptionII=2,qualityLevelValueOptionIII=1
+administrativeState 1
+encapsulation Ptp=1,BoundaryOrdinaryClock=1
+holdOffTime 1000
+priority 1
+useQLFrom 1
+waitToRestoreTime 60
+end
+
+crn Transport=1,Synchronization=1,RadioEquipmentClock=1,RadioEquipmentClockReference=SyncE
+adminQualityLevel qualityLevelValueOptionI=2,qualityLevelValueOptionII=2,qualityLevelValueOptionIII=1
+administrativeState 1
+encapsulation Synchronization=1,SyncEthInput=1
+holdOffTime 1000
+priority 3
+useQLFrom 1
+waitToRestoreTime 60
+end
+
+#----------------------------------ESS-----------------------------------------#
+
+set . essNRNeighborCellInfoUsed true
+set . nbRrcConnReestActive false
+cr enodebfunction=1,endcuserprofile=1
+set SubscriberGroupProfile=1 endcUserProfileRef ManagedElement=69014BB2,ENodeBFunction=1,EndcUserProfile=1
+set EnodeBFunction=1,EutranCellFDD= puschPwrOffset256qam 0
+set EnodeBFunction=1,EutranCellFDD= ul256qamEnabled FALSE
+
+mr ESS
+ma ESS eutrancellfdd reservedby SharingGroup=
+if $nr_of_mos > 0
+ for $mo in ESS
+  set $mo otdoaSuplActive true
+  set $mo prsConfigIndex 11
+ done
+fi
+
+mr ESSRELATION
+ma ESSRELATION GUtranCellRelation reservedby SharingGroup=
+if $nr_of_mos > 0
+ for $mo in ESSRELATION
+  set $mo essenabled true
+ done
+fi
+
+#-----------------------------Features-------------------------------------------#
+
+#LTE AI Powered SCell Selection
+set CXC4012525 featurestate 0
+#Emergency Inactivity Timer Extension
+set CXC4012578 featurestate 0
+#TM8 Downlink Single-User MIMO on TDD SCell
+set CXC4012585 featurestate 0
+
+
+#-----------------------------EutranFreqRelation----------------------------------#
+mr EUTRANFREQREL
+ma EUTRANFREQREL eutranFrequencyRef ENodeBFunction=1,EUtraNetwork=1,EUtranFrequency=1788
+ma EUTRANFREQREL eutranFrequencyRef ENodeBFunction=1,EUtraNetwork=1,EUtranFrequency=3029
+ma EUTRANFREQREL eutranFrequencyRef ENodeBFunction=1,EUtraNetwork=1,EUtranFrequency=547
+if $nr_of_mos > 0
+ for $mo in EUTRANFREQREL
+ del $mo
+ done
+fi
+
+#-----------------EutranCellRelation--------------------!
+
+func covind
+ if $eutrancellrelldn ~ $enbid
+  set $eutrancellrelldn coverageIndicator 1
+ else
+  set $eutrancellrelldn coverageIndicator 0
+ fi
+endfunc
+
+func scellcandidate
+ if $neighborcellref ~ 80
+  set $eutrancellrelldn sCellCandidate 0
+ else if $neighborcellref ~ $enbid
+  set $eutrancellrelldn sCellCandidate 1
+ else
+  set $eutrancellrelldn sCellCandidate 2
+ fi
+endfunc
+
+func scellprio
+ if $eutrancell ~ A
+  $sourcesect = a
+ else if $eutrancell ~ B
+  $sourcesect = b
+ else if $eutrancell ~ C
+  $sourcesect = c
+ fi
+ if $neighborcellref ~ A
+  $targetsect = a
+ else if $neighborcellref ~ B
+  $targetsect = b
+ else if $neighborcellref ~ C
+  $targetsect = c
+ fi
+ if $sourcesect = $targetsect
+  set $eutrancellrelldn sCellPriority 7
+ else 
+  set $eutrancellrelldn sCellPriority 6
+ fi
+endfunc
+
+get ENodeBFunction=1 eNBId > $enbid
+mr EUTRANCELLREL
+ma EUTRANCELLREL EUtranFreqRelation=[0-9]+[A-Z]*,EUtranCellRelation=
+for $mo in EUTRANCELLREL
+ $eutrancellrelldn = ldn($mo)
+ $eutrancell = $eutrancellrelldn -s ENodeBFunction=1,EUtranCellFDD=
+ $eutrancell = $eutrancell -s ,.*
+ get $eutrancellrelldn neighborcellref > $neighborcellref
+ $neighborcellref = $neighborcellref -s .*=
+ covind
+ scellcandidate
+ scellprio
+done
+
+#----------------5G-------------------------#
+
+bl NRCellDU=
+bl NRSectorCarrier=
+gs-
+setm NRCellDU= secondaryCellOnly TRUE essMbsfnSubframeVariant 0
+gs+
+
+set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=6  tReorderingUl 20
+set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=7  tReorderingUl 20
+set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=8  tReorderingUl 20
+set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=9  tReorderingUl 20
+
+set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=6  pdcpSnSize 12
+set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=7  pdcpSnSize 12
+
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=6  dscp 18
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=8  dscp 0
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=9  dscp 0
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=6  userLabel QCI6
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=7  userLabel QCI7
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=7  dscp 10
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=7  packetDelayBudget 80
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=8  userLabel QCI8
+set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=9  userLabel QCI9
+
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=6  rlcSNLength 12
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=7  rlcSNLength 12
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=6  tReassemblyDl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=6  tReassemblyUl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=7  tReassemblyDl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=7  tReassemblyUl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=8  tReassemblyDl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=8  tReassemblyUl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=9  tReassemblyDl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=9  tReassemblyUl 25
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=6  dscp 18
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=8  dscp 0
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=9  dscp 0
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=6  userLabel QCI6
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=6  priorityLevel 60
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=7  userLabel QCI7
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=7  priorityLevel 70
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=7  dscp 10
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=7  packetDelayBudget 80
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=8  userLabel QCI8
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=9  userLabel QCI9
+set GNBDUFunction=1,DU5qiTable=1,DU5qi=9  priorityLevel 90
+
+set GNBDUFunction=1,NRCellDU=69014NAn011 endcUlLegSwitchEnabled TRUE
+set GNBDUFunction=1,NRCellDU=69014NAn031 endcUlLegSwitchEnabled TRUE
+set GNBDUFunction=1,NRCellDU=69014NAn071 endcUlLegSwitchEnabled TRUE
+set GNBDUFunction=1,NRCellDU=69014NAn281 endcUlLegSwitchEnabled TRUE
+set GNBDUFunction=1,NRCellDU=69014NBn011 endcUlLegSwitchEnabled TRUE
+set GNBDUFunction=1,NRCellDU=69014NBn031 endcUlLegSwitchEnabled TRUE
+set GNBDUFunction=1,NRCellDU=69014NBn281 endcUlLegSwitchEnabled TRUE
+
+# for FDD NR - SCG, For TDD NR MCG
+set GNBCUCPFunction=gNBId569014,QciProfileEndcConfigExt=1 initialUplinkConf 1
+
+set NRNetwork=1,NRFrequency=374190-15-20-0-2 bandListManual 3
+set NRNetwork=1,NRFrequency=431810-15-20-0-2 bandListManual 1
+set NRNetwork=1,NRFrequency=636384-30-20-0-1 bandListManual 78
+set NRNetwork=1,NRFrequency=636960-30-20-0-1 bandListManual 78
+set NRNetwork=1,NRFrequency=646272-30-20-0-1 bandListManual 78
+set NRNetwork=1,NRFrequency=156510-15-20-0-2 bandListManual 28
+set NRNetwork=1,NRFrequency=529490-15-20-0-2 bandListManual 7
+
+func nrcelldu
+	mr NRCELLDU
+	ma NRCELLDU $nrsectorcarrierrdn reservedBy
+	for $mo in NRCELLDU
+		$nrcellrdn = rdn($mo)
+		if $nrcellrdn ~ n281
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 10 bSChannelBwUL 10
+		else if $nrcellrdn ~ n011
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 15 bSChannelBwUL 15
+		else if $nrcellrdn ~ n031
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 10 bSChannelBwUL 10
+		else if $nrcellrdn ~ n071
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 40 bSChannelBwUL 40
+		fi
+	done
+endfunc
+
+gs-
+mr NRSECTORCARRIER
+ma NRSECTORCARRIER NRSectorCarrier=
+for $mo in NRSECTORCARRIER
+	$nrsectorcarrierrdn = rdn($mo)
+	nrcelldu
+done
+gs+
+
+## EMF Power Lock Midband
+## PSCell Change to Higher Priority
+## NR DL Carrier Aggregation
+
+set SystemFunctions=1,Lm=1,FeatureState=CXC4012334 featureState 0
+set SystemFunctions=1,Lm=1,FeatureState=CXC4012555 featureState 1
+set SystemFunctions=1,Lm=1,FeatureState=CXC4012477 featureState 1
+
+deb NRCellDU=
+deb NRSectorCarrier=
