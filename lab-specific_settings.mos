@@ -1,0 +1,63 @@
+lt all
+confb+
+set . isRemoveAllowed false 
+set AnrFunction=1  cellRelHoAttRateThreshold 0
+set . removeNrelTime 1000
+set ENodeBFunction=1,CarrierAggregationFunction=1 endccapolicy 1
+set UeMeasControl=1 maxMeasB1Endc 8
+set UeMeasControl=1 maxMeasNR 8
+set FreqBandData= vswrSupervisionActive FALSE
+
+mr RFPORT
+ma RFPORT RfPort=
+	for $mo in RFPORT
+	$rfportldn = ldn($mo)
+	if $rfportldn ~ RfPort=R
+		set $rfportldn vswrSupervisionSensitivity -1
+		set $rfportldn vswrSupervisionActive false
+	else
+		set $rfportldn vswrSupervisionSensitivity 75
+		set $rfportldn vswrSupervisionActive true
+		
+	fi
+done
+
+#If additionalPlmnAlarmSupprList is set to false, then cells will be alarming upon unavailability of the relevant MME!
+gs-
+setm ^EUtranCellFDD= additionalplmnlist mcc=234,mnc=32,mnclength=2;mcc=234,mnc=31,mnclength=2;mcc=234,mnc=34,mnclength=2 additionalPlmnReservedList false,false,false additionalPlmnAlarmSupprList true,true,true
+gs+
+
+
+#If csiRsControl2Ports is OFF, then the NRCell cannot be enabled and sends the following alarm:
+#Inconsistent Configuration NRCellDU=<name> (MO::noOfUsedTxAntennas value 2 requires configuration of csiRsConfig2P...)
+bl NRCellDU=
+bl NRSectorCarrier=
+set NRCellDU= csiRsConfig2P aRestriction=3F,csiRsControl2Ports=ON
+set NRCellDU= csiRsConfig4P i11Restriction=,csiRsControl4Ports=OFF
+set NRCellDU= csiRsConfig8P i11Restriction=,i12Restriction=,csiRsControl8Ports=OFF
+set NRCellDU= csiRsConfig16P i11Restriction=,i12Restriction=,CsiRsControl16Ports=OFF
+set NRCellDU= csiRsConfig32P i11Restriction=,i12Restriction=,CsiRsControl32Ports=OFF
+deb NRCellDU=
+deb NRSectorCarrier=
+
+#-------------------------- McpcPSCellProfile settings (5G NSA HO)----------------------------------------------
+//5G NSA - McpcPSCellProfile - Mobility control at poor coverage function for PSCell in EN-DC.  Applies to UEs that use this cell as PSCell in EN-DC. Attributes are used on cell level.
+
+pr Mcpc=1,McpcPSCellProfile=1
+if $nr_of_mos = 0
+	cr $gnbcucpfunctionldn,Mcpc=1,McpcPSCellProfile=1
+	ldc McpcPSCellProfile=1
+	wait 1
+fi
+
+set NRCellCU mcpcPSCellProfileRef Mcpc=1,McpcPSCellProfile=1
+set nrcellcu mcpcPSCellEnabled true
+set McpcPSCellNrFreqRelProfileUeCfg inhibitMeasForCellCandidate false
+set McpcPSCellNrFreqRelProfileUeCfg rsrpCandidateA5Offsets threshold1Offset=0, threshold2Offset=0 
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base lowHighFreqPrioClassification 7
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base mcpcQuantityList 0
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCriticalEnabled true
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpSearchTimeRestriction 12000
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpSearchZone hysteresis=30, threshold=-95, timeToTrigger=160, timeToTriggerA1=-1
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=30, threshold1=-98, threshold2=-96, timeToTrigger=320
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCritical hysteresis=10, threshold=-124, timeToTrigger=160
