@@ -100,7 +100,6 @@ set ENodeBFunction=1,EUtranCellFDD= ttiBundlingSwitchThres 150
 set ENodeBFunction=1,EUtranCellFDD= ttiBundlingSwitchThresHyst 40
 
 
-set ENodeBFunction=1,EUtranCellFDD=......18	cellSubscriptionCapacity 35000
 set ENodeBFunction=1,EUtranCellFDD=......11 cellSubscriptionCapacity 35000
 set ENodeBFunction=1,EUtranCellFDD=......21 cellSubscriptionCapacity 25000
 set ENodeBFunction=1,EUtranCellFDD=......26 cellSubscriptionCapacity 35000
@@ -114,7 +113,20 @@ set ENodeBFunction=1,EUtranCellFDD= otdoaSuplActive FALSE
 set ENodeBFunction=1,EUtranCellFDD= prsConfigIndex -1
 
 gs-
-setm ENodeBFunction=1,EUtranCellFDD=......18 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
+mr BTHREECTWO
+ma BTHREECTWO ENodeBFunction=1,EUtranCellFDD=......18
+for $mo in BTHREECTWO
+	get $mo earfcndl > $bthreectwotype
+	if $bthreectwotype = 1818
+		setm $mo cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
+		set $mo	cellSubscriptionCapacity 35000
+		set $mo pdschMaxNrOfPrbsPerUe 100
+	else if $bthreectwotype = 1767
+		setm $mo cellCapMinCellSubCap 10000 cellCapMaxCellSubCap 25000
+		set $mo	cellSubscriptionCapacity 10000
+		set $mo pdschMaxNrOfPrbsPerUe 50
+	fi
+done
 setm ENodeBFunction=1,EUtranCellFDD=......11 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
 setm ENodeBFunction=1,EUtranCellFDD=......21 cellCapMinCellSubCap 20000 cellCapMaxCellSubCap 35000
 setm ENodeBFunction=1,EUtranCellFDD=......26 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
@@ -227,7 +239,6 @@ set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=3179 endcHoFreqPr
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=522  endcHoFreqPriority  7
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=1617 endcHoFreqPriority  7
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=1815 endcHoFreqPriority -1
-set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=3029 endcHoFreqPriority -1
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=38475 endcHoFreqPriority -1
 	
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=6225 voiceprio -1 
@@ -271,7 +282,6 @@ set ^EUtranFreqRelation=1761 allowedMeasBandwidth 100
 set ^EUtranFreqRelation=1791 allowedMeasBandwidth 75
 set ^EUtranFreqRelation=1815 allowedMeasBandwidth 100
 set ^EUtranFreqRelation=3179 allowedMeasBandwidth 75
-set ^EUtranFreqRelation=3029 allowedMeasBandwidth 75
 set ^EUtranFreqRelation=3350 allowedMeasBandwidth 100
 set ^EUtranFreqRelation=38475 allowedMeasBandwidth 25
 set ^EUtranFreqRelation=522 allowedMeasBandwidth 75
@@ -282,7 +292,6 @@ set ^EUtranFreqRelation=1761 lbBnrPolicy 2
 set ^EUtranFreqRelation=1815 lbBnrPolicy 2 
 set ^EUtranFreqRelation=3179 lbBnrPolicy 2 
 set ^EUtranFreqRelation=3350 lbBnrPolicy 2
-set ^EUtranFreqRelation=3029 lbBnrPolicy 2 
 set ^EUtranFreqRelation=522 lbBnrPolicy 2
 set ^EUtranFreqRelation=1791 lbBnrPolicy 0 
 set ^EUtranFreqRelation=38475 lbBnrPolicy 0
@@ -294,8 +303,7 @@ set ^EUtranFreqRelation=1617  threshXHigh 12
 set ^EUtranFreqRelation=1761  threshXHigh 12 
 set ^EUtranFreqRelation=1815  threshXHigh 12
 set ^EUtranFreqRelation=3179  threshXHigh 12
-set ^EUtranFreqRelation=3350  threshXHigh 12
-set ^EUtranFreqRelation=3029  threshXHigh 12 
+set ^EUtranFreqRelation=3350  threshXHigh 12 
 set ^EUtranFreqRelation=522   threshXHigh 12
 set ^EUtranFreqRelation=1791  threshXHigh 18
 set ^EUtranFreqRelation=38475 threshXHigh 18

@@ -6,7 +6,6 @@
 #It expects EUtranCells including "A", "B" or "C" in their names -as a hint to the host sector.
 #The script sets:
 #	EUtranCellRelation.scellcandidate to:
-#		0 (DISABLED) towards L800 (cell name ~80),
 #		1 (ALLOWED) on all other intracell-relations,
 #		2 (AUTO) on external cell relations.
 #	EUtranCellRelation.coverageIndicator to:
@@ -111,11 +110,11 @@ func scellprio
 endfunc
 
 func scellcandidate
-	if $rdnEUtranCellFDD[$k] ~ 80
-		set $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] sCellCandidate 0
-	else
+	#if $rdnEUtranCellFDD[$k] ~ 80
+		#set $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] sCellCandidate 0
+	#else
 		set $rdnEUtranCellFDD[$j],EUtranFreqRelation=$earfcndl[$k],EUtranCellRelation=$plmnid[mcc]$plmnid[mnc]-$enbid-$cellid[$k] sCellCandidate 1
-	fi
+	#fi
 endfunc
 
 func relcreate

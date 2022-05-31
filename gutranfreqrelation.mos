@@ -6,7 +6,6 @@
 
 #This script includes special parameter settings - different from default.
 #This script adds Lrat.GUtranFreqRelations -based on existing GUtranSyncSignalFrequencies to EUtranCell's 18C1, 21C1, 26C1, 26C2, 26C3
-#This script adds ESS sharing groups for L2100-NR2100.
 #GUtranFreqRelation.cellReselectionPriority is set to -1 for all instances.
 #ExternalGNodeBFunction, TermPointToGNB must be defined before running this script: See: https://github.com/codgersanya/TermPointtoGNB
 #Existing ExternalGUtranCells and GUtranSyncSignalFrequencies are also prerequisite.
@@ -127,10 +126,14 @@ func settings
 	set ENodeBFunction= endcS1OverlapMode TRUE
 	set ENodeBFunction=1 zzzTemporary81 1
 	set GUtranFreqRelation= allowedPlmnList mcc=234,mnc=30,mncLength=2
-	set GUtranFreqRelation=156510 endcB1MeasPriority 2
-	set GUtranFreqRelation=431810 endcB1MeasPriority 1
-	set GUtranFreqRelation=636960 endcB1MeasPriority 6
-	set GUtranFreqRelation=646272 endcB1MeasPriority 6
+	
+	set GUtranFreqRelation=156510        endcB1MeasPriority 2
+	set GUtranFreqRelation=374190        endcB1MeasPriority 4
+	set GUtranFreqRelation=431810        endcB1MeasPriority 1
+	set GUtranFreqRelation=529490        endcB1MeasPriority 5
+	set GUtranFreqRelation=636960        endcB1MeasPriority 7
+	set GUtranFreqRelation=646272        endcB1MeasPriority 6	
+	
 endfunc
 
 #*************************************#

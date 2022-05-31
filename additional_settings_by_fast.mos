@@ -160,12 +160,12 @@ set CXC4012585 featurestate 0
 
 #-----------------------------EutranFreqRelation----------------------------------#
 
-#3029 is 2600 C3 on E///
-# 547 and 1788 don't have the faintest clue where they come from..
+#3029 is the old 2600 C3 on E/// and obsolete
+#547 and 1788 may be inter-vendors
 
 mr FEQRELATIONS
 ma FEQRELATIONS EUtranFreqRelation= eutranFrequencyRef EUtranFrequency=1788
-#ma FEQRELATIONS EUtranFreqRelation= eutranFrequencyRef EUtranFrequency=3029 #2600 C3
+ma FEQRELATIONS EUtranFreqRelation= eutranFrequencyRef EUtranFrequency=3029
 ma FEQRELATIONS EUtranFreqRelation= eutranFrequencyRef EUtranFrequency=547
 pr FEQRELATIONS
 for $mo in FEQRELATIONS
@@ -177,7 +177,7 @@ done
 
 mr EUTRANFREQS
 ma EUTRANFREQS EUtranFrequency= arfcnValueEUtranDl 1788
-#ma EUTRANFREQS EUtranFrequency= arfcnValueEUtranDl 3029 #2600 C3
+ma EUTRANFREQS EUtranFrequency= arfcnValueEUtranDl 3029
 ma EUTRANFREQS EUtranFrequency= arfcnValueEUtranDl 547
 pr EUTRANFREQS
 for $mo in EUTRANFREQS
@@ -197,9 +197,10 @@ func covind
 endfunc
 
 func scellcandidate
- if $neighborcellref ~ 80
-  set $eutrancellrelldn sCellCandidate 0
- else if $neighborcellref ~ $enbid
+ #if $neighborcellref ~ 80
+  #set $eutrancellrelldn sCellCandidate 0
+ #else
+ if $neighborcellref ~ $enbid
   set $eutrancellrelldn sCellCandidate 1
  else
   set $eutrancellrelldn sCellCandidate 2
