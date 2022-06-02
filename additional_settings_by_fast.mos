@@ -4,6 +4,67 @@
 #                                                                        #
 #************************************************************************#
 
+
+# ================================================================ ##
+# General corrections for LAB nodes
+# ================================================================ ##
+
+
+# ANR and Relations settings for LAB enviroment handling
+set AnrFunction=1 cellRelHoAttRateThreshold 0
+set AnrFunction=1 removeNrelTime 1000
+set . isRemoveAllowed false
+
+# Keep UeMeasControl_maxMeasB1Endc in the LAB due to NR access. Design value is 2 #
+set UeMeasControl=1 maxMeasB1Endc 8
+
+# Keep UeMeasControl_maxMeasNR in the LAB due to NR access. Design value is 5 #
+set UeMeasControl=1 maxMeasNR 8
+
+
+set ENodeBFunction=1,CarrierAggregationFunction=1 endccapolicy NR_PREFERRED
+
+
+# ================================================================ ##
+# LAB PLMN setup 
+# Main: mcc=234,mnc=30,mncLength=2;
+# Additional in the LAB: mcc=234,mnc=34,mncLength=2
+# EUtranFreqRelation=1791 - small cells and those are not to be accessed by ESN users. only EE users.
+# EUtranFreqRelation=38475 - ECE freq (ESN Coverage Extenders) kind of an ESN femto or small cell
+# ================================================================ ##
+set ENodeBFunction=1 allowMocnCellLevelCommonTac true
+setm ^EUtranCellFDD additionalPlmnList mcc=234,mnc=34,mncLength=2 additionalPlmnReservedList false additionalPlmnAlarmSupprList false additionalUpperLayerIndList OFF
+set ENodeBFunction=1 allowMocnCellLevelCommonTac false
+
+set EUtranFreqRelation= allowedPlmnList mcc=234,mnc=30,mncLength=2;mcc=234,mnc=31,mncLength=2;mcc=234,mnc=34,mncLength=2
+set EUtranFreqRelation=1791 allowedPlmnList mcc=234,mnc=30,mncLength=2
+set EUtranFreqRelation=38475 allowedPlmnList mcc=234,mnc=31,mncLength=2;mcc=234,mnc=34,mncLength=2
+
+set EUtranFreqRelation= allowedPlmnList mcc=234,mnc=30,mncLength=2;mcc=234,mnc=31,mncLength=2;mcc=234,mnc=34,mncLength=2
+set ^UtranFreqRelation= allowedPlmnList mcc=234,mnc=30,mncLength=2;mcc=234,mnc=31,mncLength=2;mcc=234,mnc=34,mncLength=2
+set GeranFreqGroupRelation= allowedPlmnList mcc=234,mnc=30,mncLength=2;mcc=234,mnc=31,mncLength=2;mcc=234,mnc=34,mncLength=2
+set GUtranFreqRelation= allowedPlmnList mcc=234,mnc=30,mncLength=2
+
+# ================================================================ ##
+# VSWR settings 
+# ================================================================ ##
+set FieldReplaceableUnit=.*,RfPort=A vswrSupervisionActive TRUE
+set FieldReplaceableUnit=.*,RfPort=B vswrSupervisionActive TRUE
+set FieldReplaceableUnit=.*,RfPort=C vswrSupervisionActive TRUE
+set FieldReplaceableUnit=.*,RfPort=D vswrSupervisionActive TRUE
+set FieldReplaceableUnit=.*,RfPort=R vswrSupervisionActive FALSE
+
+set FieldReplaceableUnit=.*,RfPort=A vswrSupervisionSensitivity 75
+set FieldReplaceableUnit=.*,RfPort=B vswrSupervisionSensitivity 75
+set FieldReplaceableUnit=.*,RfPort=C vswrSupervisionSensitivity 75
+set FieldReplaceableUnit=.*,RfPort=D vswrSupervisionSensitivity 75
+set FieldReplaceableUnit=.*,RfPort=R vswrSupervisionSensitivity -1
+
+# Keep FreqBandData_vswrSupervisionActive in the LAB due to node alarms. Design value is TRUE
+set FreqBandData= vswrSupervisionActive FALSE
+set FreqBandData= vswrSupervisionSensitivity 75
+
+
 #--------------------------ExternalGNodeBFunction--------------------------------------#
 set GUtraNetwork=1,ExternalGNodeBFunction= dirDataPathAvail false
 
@@ -13,7 +74,6 @@ set ENodeBFunction=1 endcS1OverlapMode TRUE
 set ENodeBFunction=1 zzzTemporary81 1
 set ENodeBFunction=1 timeAndPhaseSynchCritical FALSE
 set ENodeBFunction=1,Paging=1 defaultPagingCycle 32
-set ENodeBFunction=1,CarrierAggregationFunction=1 endcCaPolicy NR_PREFERRED
 
 #--------------------------QciProfilePredefined------------------------------------------#
 
