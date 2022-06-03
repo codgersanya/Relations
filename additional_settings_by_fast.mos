@@ -397,13 +397,29 @@ for $mo in NRSECTORCARRIER
 done
 gs+
 
-## EMF Power Lock Midband
-## PSCell Change to Higher Priority
-## NR DL Carrier Aggregation
 
-set SystemFunctions=1,Lm=1,FeatureState=CXC4012334 featureState 0
-set SystemFunctions=1,Lm=1,FeatureState=CXC4012555 featureState 1
-set SystemFunctions=1,Lm=1,FeatureState=CXC4012477 featureState 1
+# ================================================================ ##
+# 5G featuries 
+# ================================================================ ##
+
+
+#EMF Power Lock Midband (Have to be active on AIR and 8T8R Radios)
+get NRCellDU csiRsConfig8P > $radiotype
+if $radiotype[csiRsControl8Ports] ~ 1
+	set FeatureState=CXC4012334 featureState 1 
+else if $radiotype[csiRsControl8Ports] ~ 0
+	set FeatureState=CXC4012334 featureState 0
+fi
+
+set FeatureState=CXC4012273 featureState 1      #LTE-NR DownLink Aggregation (NR Low/Mid/High)
+set FeatureState=CXC4012375 featureState 1      #LTE-NR Uplink Aggregation (NR Low/Mid/High)
+set FeatureState=CXC4012477 featureState 1      #NR DL Carrier Aggregation (NR Low/Mid)  
+set FeatureState=CXC4012347 featureState 1      #PRACH Enhancements Mid-Band (NR Low/Mid)
+set FeatureState=CXC4012492 featureState 1      #256-QAM Uplink Low/Mid-Band (NR Low/Mid)
+
+#set FeatureState=CXC4012555 featureState 1      #PSCell Change to Higher Priority - DISABLED in PM 
+
+
 
 deb NRCellDU=
 deb NRSectorCarrier=
