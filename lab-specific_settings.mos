@@ -33,7 +33,7 @@ gs+
 bl NRCellDU=
 bl NRSectorCarrier=
 set NRCellDU= csiRsConfig2P aRestriction=3F,csiRsControl2Ports=ON
-set NRCellDU= csiRsConfig4P i11Restriction=,csiRsControl4Ports=OFF
+set NRCellDU= csiRsConfig4P i11Restriction=FF,csiRsControl4Ports=1
 set NRCellDU= csiRsConfig8P i11Restriction=,i12Restriction=,csiRsControl8Ports=OFF
 set NRCellDU= csiRsConfig16P i11Restriction=,i12Restriction=,CsiRsControl16Ports=OFF
 set NRCellDU= csiRsConfig32P i11Restriction=,i12Restriction=,CsiRsControl32Ports=OFF

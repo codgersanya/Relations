@@ -1,0 +1,27 @@
+func nrcelldu
+	mr NRCELLDU
+	ma NRCELLDU $nrsectorcarrierrdn reservedBy
+	for $mo in NRCELLDU
+		$nrcellrdn = rdn($mo)
+		if $nrcellrdn ~ n281
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 10 bSChannelBwUL 10
+		else if $nrcellrdn ~ n011
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 15 bSChannelBwUL 15
+		else if $nrcellrdn ~ n031
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 10 bSChannelBwUL 10
+		else if $nrcellrdn ~ n071
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 15 bSChannelBwUL 15
+		else if $nrcellrdn ~ n78
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 40 bSChannelBwUL 40
+		fi
+	done
+endfunc
+
+gs-
+mr NRSECTORCARRIER
+ma NRSECTORCARRIER NRSectorCarrier=
+for $mo in NRSECTORCARRIER
+	$nrsectorcarrierrdn = rdn($mo)
+	nrcelldu
+done
+gs+
