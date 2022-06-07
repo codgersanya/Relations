@@ -323,6 +323,8 @@ func nrcelldu
 		else if $nrcellrdn ~ n031
 			setm $nrsectorcarrierrdn$ bSChannelBwDL 10 bSChannelBwUL 10
 		else if $nrcellrdn ~ n071
+			setm $nrsectorcarrierrdn$ bSChannelBwDL 15 bSChannelBwUL 15
+		else if $nrcellrdn ~ n78
 			setm $nrsectorcarrierrdn$ bSChannelBwDL 40 bSChannelBwUL 40
 		fi
 	done
