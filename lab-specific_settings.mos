@@ -24,9 +24,10 @@ done
 
 #If additionalPlmnAlarmSupprList is set to false, then cells will be alarming upon unavailability of the relevant MME!
 gs-
+set ENodeBFunction=1 allowMocnCellLevelCommonTac true
 setm ^EUtranCellFDD= additionalplmnlist mcc=234,mnc=32,mnclength=2;mcc=234,mnc=31,mnclength=2;mcc=234,mnc=34,mnclength=2 additionalPlmnReservedList false,false,false additionalPlmnAlarmSupprList true,true,true
 gs+
-
+set ENodeBFunction=1 allowMocnCellLevelCommonTac false
 
 #If csiRsControl2Ports is OFF, then the NRCell cannot be enabled and sends the following alarm:
 #Inconsistent Configuration NRCellDU=<name> (MO::noOfUsedTxAntennas value 2 requires configuration of csiRsConfig2P...)
