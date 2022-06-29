@@ -127,12 +127,14 @@ for $mo in BTHREECTWO
 		set $mo pdschMaxNrOfPrbsPerUe 50
 	fi
 done
+gs+
+
 setm ENodeBFunction=1,EUtranCellFDD=......11 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
 setm ENodeBFunction=1,EUtranCellFDD=......21 cellCapMinCellSubCap 20000 cellCapMaxCellSubCap 35000
 setm ENodeBFunction=1,EUtranCellFDD=......26 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
 setm ENodeBFunction=1,EUtranCellFDD=......27 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
 setm ENodeBFunction=1,EUtranCellFDD=......80 cellCapMinCellSubCap 4000  cellCapMaxCellSubCap 8000
-gs+
+
 	
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=1617 cellReselectionPriority 6
 set ENodeBFunction=1,EUtranCellFDD=........,EUtranFreqRelation=1761 cellReselectionPriority 6
