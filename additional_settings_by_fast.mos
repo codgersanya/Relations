@@ -311,13 +311,13 @@ gs-
 setm NRCellDU= secondaryCellOnly TRUE essMbsfnSubframeVariant 0
 gs+
 
-set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=6  tReorderingUl 20
-set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=7  tReorderingUl 20
-set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=8  tReorderingUl 20
-set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=9  tReorderingUl 20
+set CUCP5qiTable=1,CUCP5qi=6  tReorderingUl 20
+set CUCP5qiTable=1,CUCP5qi=7  tReorderingUl 20
+set CUCP5qiTable=1,CUCP5qi=8  tReorderingUl 20
+set CUCP5qiTable=1,CUCP5qi=9  tReorderingUl 20
 
-set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=6  pdcpSnSize 12
-set GNBCUCPFunction=gNBId569014,CUCP5qiTable=1,CUCP5qi=7  pdcpSnSize 12
+set CUCP5qiTable=1,CUCP5qi=6  pdcpSnSize 12
+set CUCP5qiTable=1,CUCP5qi=7  pdcpSnSize 12
 
 set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=6  dscp 18
 set GNBCUUPFunction=1,CUUP5qiTable=1,CUUP5qi=8  dscp 0
