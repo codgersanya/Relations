@@ -52,13 +52,13 @@ set FieldReplaceableUnit=.*,RfPort=A vswrSupervisionActive TRUE
 set FieldReplaceableUnit=.*,RfPort=B vswrSupervisionActive TRUE
 set FieldReplaceableUnit=.*,RfPort=C vswrSupervisionActive TRUE
 set FieldReplaceableUnit=.*,RfPort=D vswrSupervisionActive TRUE
-set FieldReplaceableUnit=.*,RfPort=R vswrSupervisionActive FALSE
+#set FieldReplaceableUnit=.*,RfPort=R vswrSupervisionActive FALSE
 
 set FieldReplaceableUnit=.*,RfPort=A vswrSupervisionSensitivity 75
 set FieldReplaceableUnit=.*,RfPort=B vswrSupervisionSensitivity 75
 set FieldReplaceableUnit=.*,RfPort=C vswrSupervisionSensitivity 75
 set FieldReplaceableUnit=.*,RfPort=D vswrSupervisionSensitivity 75
-set FieldReplaceableUnit=.*,RfPort=R vswrSupervisionSensitivity -1
+#set FieldReplaceableUnit=.*,RfPort=R vswrSupervisionSensitivity -1
 
 # Keep FreqBandData_vswrSupervisionActive in the LAB due to node alarms. Design value is TRUE
 set FreqBandData= vswrSupervisionActive FALSE
@@ -352,24 +352,62 @@ set GNBDUFunction=1,DU5qiTable=1,DU5qi=8  userLabel QCI8
 set GNBDUFunction=1,DU5qiTable=1,DU5qi=9  userLabel QCI9
 set GNBDUFunction=1,DU5qiTable=1,DU5qi=9  priorityLevel 90
 
-set GNBDUFunction=1,NRCellDU=69014NAn011 endcUlLegSwitchEnabled TRUE
-set GNBDUFunction=1,NRCellDU=69014NAn031 endcUlLegSwitchEnabled TRUE
-set GNBDUFunction=1,NRCellDU=69014NAn071 endcUlLegSwitchEnabled TRUE
-set GNBDUFunction=1,NRCellDU=69014NAn281 endcUlLegSwitchEnabled TRUE
-set GNBDUFunction=1,NRCellDU=69014NBn011 endcUlLegSwitchEnabled TRUE
-set GNBDUFunction=1,NRCellDU=69014NBn031 endcUlLegSwitchEnabled TRUE
-set GNBDUFunction=1,NRCellDU=69014NBn281 endcUlLegSwitchEnabled TRUE
+pr NRCellDU=.......n011
+if $nr_of_mos > 0
+	set GNBDUFunction=1,NRCellDU=.......n011 endcUlLegSwitchEnabled TRUE
+fi
+pr NRCellDU=.......n031
+if $nr_of_mos > 0
+	set GNBDUFunction=1,NRCellDU=.......n031 endcUlLegSwitchEnabled TRUE
+fi
+pr NRCellDU=.......n071
+if $nr_of_mos > 0
+	set GNBDUFunction=1,NRCellDU=.......n071 endcUlLegSwitchEnabled TRUE
+fi
+pr NRCellDU=.......n281
+if $nr_of_mos > 0
+	set GNBDUFunction=1,NRCellDU=.......n281 endcUlLegSwitchEnabled TRUE
+fi
+pr NRCellDU=.......n781
+if $nr_of_mos > 0
+	set GNBDUFunction=1,NRCellDU=.......n781 endcUlLegSwitchEnabled FALSE
+fi
+pr NRCellDU=.......n782
+if $nr_of_mos > 0
+	set GNBDUFunction=1,NRCellDU=.......n781 endcUlLegSwitchEnabled FALSE
+fi
 
 # for FDD NR - SCG, For TDD NR MCG
-set GNBCUCPFunction=gNBId569014,QciProfileEndcConfigExt=1 initialUplinkConf 1
+set QciProfileEndcConfigExt=1 initialUplinkConf 1
 
-set NRNetwork=1,NRFrequency=374190-15-20-0-2 bandListManual 3
-set NRNetwork=1,NRFrequency=431810-15-20-0-2 bandListManual 1
-set NRNetwork=1,NRFrequency=636384-30-20-0-1 bandListManual 78
-set NRNetwork=1,NRFrequency=636960-30-20-0-1 bandListManual 78
-set NRNetwork=1,NRFrequency=646272-30-20-0-1 bandListManual 78
-set NRNetwork=1,NRFrequency=156510-15-20-0-2 bandListManual 28
-set NRNetwork=1,NRFrequency=529490-15-20-0-2 bandListManual 7
+pr NRNetwork=1,NRFrequency=374190-15-20-0-2
+if $nr_of_mos > 0
+	set NRNetwork=1,NRFrequency=374190-15-20-0-2 bandListManual 3
+fi
+pr NRNetwork=1,NRFrequency=431810-15-20-0-2
+if $nr_of_mos > 0
+	set NRNetwork=1,NRFrequency=431810-15-20-0-2 bandListManual 1
+fi
+pr NRNetwork=1,NRFrequency=636384-30-20-0-1
+if $nr_of_mos > 0
+	set NRNetwork=1,NRFrequency=636384-30-20-0-1 bandListManual 78
+fi
+pr NRNetwork=1,NRFrequency=636960-30-20-0-1
+if $nr_of_mos > 0
+	set NRNetwork=1,NRFrequency=636960-30-20-0-1 bandListManual 78
+fi
+pr NRNetwork=1,NRFrequency=646272-30-20-0-1
+if $nr_of_mos > 0
+	set NRNetwork=1,NRFrequency=646272-30-20-0-1 bandListManual 78
+fi
+pr NRNetwork=1,NRFrequency=156510-15-20-0-2
+if $nr_of_mos > 0
+	set NRNetwork=1,NRFrequency=156510-15-20-0-2 bandListManual 28
+fi
+pr NRNetwork=1,NRFrequency=529490-15-20-0-2
+if $nr_of_mos > 0
+	set NRNetwork=1,NRFrequency=529490-15-20-0-2 bandListManual 7
+fi
 
 func nrcelldu
 	mr NRCELLDU
@@ -413,13 +451,18 @@ else if $radiotype[csiRsControl8Ports] ~ 0
 	set FeatureState=CXC4012334 featureState 0
 fi
 
-set FeatureState=CXC4012273 featureState 1      #LTE-NR DownLink Aggregation (NR Low/Mid/High)
-set FeatureState=CXC4012375 featureState 1      #LTE-NR Uplink Aggregation (NR Low/Mid/High)
-set FeatureState=CXC4012477 featureState 1      #NR DL Carrier Aggregation (NR Low/Mid)  
-set FeatureState=CXC4012347 featureState 1      #PRACH Enhancements Mid-Band (NR Low/Mid)
-set FeatureState=CXC4012492 featureState 1      #256-QAM Uplink Low/Mid-Band (NR Low/Mid)
-
-#set FeatureState=CXC4012555 featureState 1      #PSCell Change to Higher Priority - DISABLED in PM 
+#LTE-NR DownLink Aggregation (NR Low/Mid/High)
+set FeatureState=CXC4012273 featureState 1      
+#LTE-NR Uplink Aggregation (NR Low/Mid/High)
+set FeatureState=CXC4012375 featureState 1      
+#NR DL Carrier Aggregation (NR Low/Mid)
+set FeatureState=CXC4012477 featureState 1        
+#PRACH Enhancements Mid-Band (NR Low/Mid)
+set FeatureState=CXC4012347 featureState 1      
+#256-QAM Uplink Low/Mid-Band (NR Low/Mid)
+set FeatureState=CXC4012492 featureState 1      
+#PSCell Change to Higher Priority - DISABLED in PM
+#set FeatureState=CXC4012555 featureState 1       
 
 
 
@@ -428,4 +471,7 @@ deb NRSectorCarrier=
 
 #------------------------NbIotCell----------------------------#
 
-set NbIotCell= abPresence 0
+pr ENodeBFunction=1,NbIotCell=
+if $nr_of_mos > 0
+	set ENodeBFunction=1,NbIotCell= abPresence 0
+fi
