@@ -379,8 +379,8 @@ set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base mcpcQuantityList 0
 set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCriticalEnabled true
 set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpSearchTimeRestriction 12000
 set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpSearchZone hysteresis=30, threshold=-95, timeToTrigger=160, timeToTriggerA1=-1
-set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=30, threshold1=-98, threshold2=-96, timeToTrigger=320
-set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCritical hysteresis=10, threshold=-124, timeToTrigger=160
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=10, threshold1=-107, threshold2=-105, timeToTrigger=320
+set Mcpc=1,McpcPSCellProfile=1,McpcPSCellProfileUeCfg=Base rsrpCritical hysteresis=10, threshold=-130, timeToTrigger=160
 
 #-------------------------- McpcPSCellNrFreqRelProfile settings (5G NSA HO) ----------------------------------------------
 //5G NSA - Mobility control at poor coverage function for PSCell in EN-DC. Applies to UEs that use this cell as PSCell in EN-DC. Attributes are used on NR frequency relation level.
@@ -448,7 +448,7 @@ if $nr_of_mos = 0
 	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base hiPrioDetInactiveTime 500
 	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base hiPrioDetMeasurementTime 120000
 	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base hiPrioDetStartTime 10
-	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=30,threshold2=-95,timeToTrigger=640
+	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base rsrpCandidateA5 hysteresis=20,threshold2=-104,timeToTrigger=640
 	set TrStPSCellProfile=1,TrStPSCellProfileUeCfg=Base userLabel
 fi
 
