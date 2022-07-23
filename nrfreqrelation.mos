@@ -251,7 +251,7 @@ fi
 
 
 func measGapPattern
-	for $mo in eutrancellfdd
+	for $mo in eutrancells
 	get $mo administrativestate > $admsteutrancell
 	if $admsteutrancell ~ 1
 		$i = $i + 1
@@ -269,8 +269,9 @@ endfunc
 
 $i = 0
 unset $nr_of_mos
-mr eutrancellfdd
-ma eutrancellfdd ^EUtranCellFDD=
+mr eutrancells
+ma eutrancells ^EUtranCellFDD=
+pr eutrancells
 if $nr_of_mos > 0
 	measGapPattern
 fi
