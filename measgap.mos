@@ -1,0 +1,51 @@
+#------------------------------------Measurement Gap-Aware NR Scheduling---------------------------------------------
+#measGapPattern 0  --> 1
+#Instead of:
+#15(INACTIVITYTIMER_100MS) --> 7(INACTIVITYTIMER_8MS)
+#39(ONDURATIONTIMER_10MS) --> 2(ONDURATIONTIMER_2MS)
+#Disabling DRX -as matter of precaution
+
+
+func measGapPattern
+	for $mo in eutrancells
+	get $mo administrativestate > $admsteutrancell
+	if $admsteutrancell ~ 1
+		$i = $i + 1
+		$rdneutrancellfdd[$i] = rdn($mo)
+		bl $mo
+	fi
+	done
+	##Default values:
+	set EUtranCellFDD measGapPattern 1
+	set EUtranCellFDD measGapPattEndc 1
+	for $m = 1 to $i
+		deb $rdneutrancellfdd[$m]
+	done
+endfunc
+
+$i = 0
+unset $nr_of_mos
+mr eutrancells
+ma eutrancells ^EUtranCellFDD=
+pr eutrancells
+if $nr_of_mos > 0
+	measGapPattern
+fi
+
+$m = 0
+mr NRCellDU
+ma NRCellDU ^NRCellDU=
+for $mo in NRCellDU
+	get $mo administrativestate > $admstnrcell
+	if $admstnrcell ~ 1
+		$m = $m + 1
+		$rdnNRCellDU[$m] = rdn($mo)
+		bl $mo
+	fi
+done	
+#set NRCellDU drxInactivityTimer 7
+#set NRCellDU drxOnDurationTimer 2
+set NRCellDU drxEnable false
+for $m = 1 to $m
+	deb $rdnNRCellDU[$m]
+done

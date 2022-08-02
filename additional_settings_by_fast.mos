@@ -9,6 +9,7 @@
 # General corrections for LAB nodes
 # ================================================================ ##
 
+lt all
 
 # ANR and Relations settings for LAB enviroment handling
 set AnrFunction=1 cellRelHoAttRateThreshold 0

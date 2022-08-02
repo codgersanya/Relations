@@ -99,7 +99,6 @@ done
 set ENodeBFunction=1,EUtranCellFDD= ttiBundlingSwitchThres 150
 set ENodeBFunction=1,EUtranCellFDD= ttiBundlingSwitchThresHyst 40
 
-
 set ENodeBFunction=1,EUtranCellFDD=......11 cellSubscriptionCapacity 35000
 set ENodeBFunction=1,EUtranCellFDD=......21 cellSubscriptionCapacity 25000
 set ENodeBFunction=1,EUtranCellFDD=......26 cellSubscriptionCapacity 35000
@@ -112,7 +111,6 @@ set ENodeBFunction=1,EUtranCellFDD= iflbAbEnabled TRUE
 set ENodeBFunction=1,EUtranCellFDD= otdoaSuplActive FALSE
 set ENodeBFunction=1,EUtranCellFDD= prsConfigIndex -1
 
-gs-
 mr BTHREECTWO
 ma BTHREECTWO ENodeBFunction=1,EUtranCellFDD=......18
 for $mo in BTHREECTWO
@@ -127,7 +125,6 @@ for $mo in BTHREECTWO
 		set $mo pdschMaxNrOfPrbsPerUe 50
 	fi
 done
-gs+
 
 setm ENodeBFunction=1,EUtranCellFDD=......11 cellCapMinCellSubCap 25000 cellCapMaxCellSubCap 45000
 setm ENodeBFunction=1,EUtranCellFDD=......21 cellCapMinCellSubCap 20000 cellCapMaxCellSubCap 35000
